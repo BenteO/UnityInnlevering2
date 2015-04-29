@@ -26,6 +26,7 @@ public class Mario : MonoBehaviour {
 
 
 	void Flip () {
+		Debug.Log("Flip");
 		facingRight = !facingRight;
 		Vector3 theScale = transform.localScale;
 		theScale.x *= -1;
