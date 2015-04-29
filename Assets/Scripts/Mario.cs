@@ -20,15 +20,10 @@ public class Mario : MonoBehaviour {
 	void Update () {
 		bool isGrounded = Physics2D.OverlapPoint(GroundCheck.position, GroundLayers);
 
-		if (Input.GetButton("Jump")) {
-
-			if(isGrounded) {
-				Debug.Log("Jump!");
-				GetComponent<Rigidbody2D>().AddForce(Vector2.up * jumpSpeed, ForceMode2D.Impulse);
-				isGrounded = false;
-			}
+		if (Input.GetButtonDown("Jump") && isGrounded) {
+			isGrounded = false;
+			GetComponent<Rigidbody2D>().AddForce(Vector2.up * jumpSpeed, ForceMode2D.Impulse);
 		}
-
 		anim.SetBool("isGrounded", isGrounded);
 
 		float h = Input.GetAxis("Horizontal");
@@ -40,7 +35,6 @@ public class Mario : MonoBehaviour {
 	}
 
 	void Flip () {
-		Debug.Log("Flip");
 		facingRight = !facingRight;
 		Vector3 theScale = transform.localScale;
 		theScale.x *= -1;
