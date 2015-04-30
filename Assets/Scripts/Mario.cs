@@ -19,6 +19,7 @@ public class Mario : MonoBehaviour {
 
 	void Update () {
 		bool isGrounded = Physics2D.OverlapPoint(GroundCheck.position, GroundLayers);
+		bool isFalling = GetComponent<Rigidbody2D>().velocity.y < -0.1;
 
 		if (Input.GetButtonDown("Jump") && isGrounded) {
 			isGrounded = false;
@@ -30,8 +31,10 @@ public class Mario : MonoBehaviour {
 		anim.SetFloat("Speed", h);
 		transform.Translate (h * maxSpeed * Time.deltaTime, 0, 0);
 
-		if (h > 0 && !facingRight) Flip();
-		else if (h < 0 && facingRight) Flip();
+		if(h > 0 && !facingRight)
+			Flip();
+		else if(h < 0 && facingRight)
+			Flip();
 	}
 
 	void Flip () {

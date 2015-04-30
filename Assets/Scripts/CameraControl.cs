@@ -38,6 +38,7 @@ public class CameraControl: MonoBehaviour {
 			y = Mathf.Clamp(y, min.y + mainCamera.orthographicSize, max.y - mainCamera.orthographicSize);
 
 			transform.position = new Vector3(x, y, transform.position.z);
+			Debug.Log(min);
 		}
 	}
 }
