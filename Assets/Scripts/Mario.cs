@@ -49,6 +49,10 @@ public class Mario : MonoBehaviour {
 		anim.SetFloat("Speed", h);
 		transform.Translate(h * maxSpeed * Time.deltaTime, 0, 0);
 
+		if (Input.GetKey(KeyCode.B)) {
+			maxSpeed *= 1.5f;
+		}
+
 		if(h > 0 && !facingRight) {
 			Flip();
 		} else if(h < 0 && facingRight) {
