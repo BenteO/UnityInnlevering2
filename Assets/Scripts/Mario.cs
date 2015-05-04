@@ -40,7 +40,6 @@ public class Mario : MonoBehaviour {
 			jumpCount = jumpCountMax;
 		}
 		if(isGrounded) {
-			maxSpeed = 6;
 			jumpCount = 0;
 		}
 		anim.SetBool("isGrounded", isGrounded);
@@ -50,9 +49,11 @@ public class Mario : MonoBehaviour {
 		transform.Translate(h * maxSpeed * Time.deltaTime, 0, 0);
 
 		if (Input.GetKey(KeyCode.B)) {
-			maxSpeed *= 1.5f;
+			maxSpeed = 20;
+		} else {
+			maxSpeed = 6;
 		}
-
+		Debug.Log(maxSpeed);
 		if(h > 0 && !facingRight) {
 			Flip();
 		} else if(h < 0 && facingRight) {
