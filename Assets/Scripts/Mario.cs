@@ -18,6 +18,10 @@ public class Mario : MonoBehaviour {
 	private Transform GroundCheck;
 	public LayerMask GroundLayers;
 	public int Health = 1;
+	public int lives = 1;
+
+	//powerup
+	public boolean invincible = false;
 
 	void Start () {
 		anim = GetComponent<Animator>();
@@ -59,6 +63,13 @@ public class Mario : MonoBehaviour {
 		} else if(h < 0 && facingRight) {
 			Flip();
 		}
+
+		if (Health < 1)
+			Die(); 
+
+		if (Input.GetKeyDown (KeyCode.B) && Health == 3) {
+			fire(); //lager helvete
+		}
 	}
 
 	void Flip () {
@@ -68,9 +79,40 @@ public class Mario : MonoBehaviour {
 		transform.localScale = theScale;
 	}
 
+	void Die () {
+		lives--;
+		if (lives < 0)
+			endgame; //todo
+		else
+			respawn;
+	}
+
 	void OnCollisionEnter2D(Collision2D other) {
-		if(other.gameObject.tag == "Question Block" || other.gameObject.tag == "Breakable Brick") {
+		if (other.gameObject.tag == "Question Block" || other.gameObject.tag == "Breakable Brick") {
 			jumpCount = jumpCountMax;
+		}
+
+		if (other.gameObject.tag == "Enemy") {
+			if (!invincible) //midlertidig
+				Health--;
+			Destroy (other);
+		}
+
+		if (other.gameObject.tag == "Star") {
+			invincible = true;
+			Destroy (other);
+		}
+		if (other.gameObject.tag == "Magic") {
+			Health = 2;
+			Destroy (other);
+		}
+		if (other.gameObject.tag == "Green") {
+			lives++;
+			Destroy (other);
+		}
+		if (other.gameObject.tag == "Fire") {
+			Health = 3;
+			Destroy (other);
 		}
 	}
 }
