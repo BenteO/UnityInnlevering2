@@ -49,7 +49,7 @@ public class Mario : MonoBehaviour {
 		anim.SetBool("isGrounded", isGrounded);
 
 		float h = Input.GetAxis("Horizontal");
-		anim.SetFloat("Speed", h);
+		anim.SetFloat("Speed", h * maxSpeed);
 		transform.Translate(h * maxSpeed * Time.deltaTime, 0, 0);
 
 		if (Input.GetKey(KeyCode.B)) {
