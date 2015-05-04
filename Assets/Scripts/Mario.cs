@@ -21,7 +21,7 @@ public class Mario : MonoBehaviour {
 	public int lives = 1;
 
 	//powerup
-	public boolean invincible = false;
+	public bool invincible = false;
 
 	void Start () {
 		anim = GetComponent<Animator>();
@@ -68,7 +68,7 @@ public class Mario : MonoBehaviour {
 			Die(); 
 
 		if (Input.GetKeyDown (KeyCode.B) && Health == 3) {
-			fire(); //lager helvete
+			//fire();
 		}
 	}
 
@@ -81,10 +81,12 @@ public class Mario : MonoBehaviour {
 
 	void Die () {
 		lives--;
-		if (lives < 0)
-			endgame; //todo
-		else
-			respawn;
+		if (lives < 0) {
+		}
+			//endgame;
+		else {
+		}
+			//respawn;
 	}
 
 	void OnCollisionEnter2D(Collision2D other) {
@@ -95,24 +97,24 @@ public class Mario : MonoBehaviour {
 		if (other.gameObject.tag == "Enemy") {
 			if (!invincible) //midlertidig
 				Health--;
-			Destroy (other);
+			DestroyObject (other.gameObject);
 		}
 
 		if (other.gameObject.tag == "Star") {
 			invincible = true;
-			Destroy (other);
+			DestroyObject (other.gameObject);
 		}
 		if (other.gameObject.tag == "Magic") {
 			Health = 2;
-			Destroy (other);
+			DestroyObject (other.gameObject);
 		}
 		if (other.gameObject.tag == "Green") {
 			lives++;
-			Destroy (other);
+			DestroyObject (other.gameObject);
 		}
 		if (other.gameObject.tag == "Fire") {
 			Health = 3;
-			Destroy (other);
+			DestroyObject (other.gameObject);
 		}
 	}
 }
