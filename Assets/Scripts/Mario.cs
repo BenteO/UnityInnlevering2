@@ -49,7 +49,7 @@ public class Mario : MonoBehaviour {
 		transform.Translate(h * maxSpeed * Time.deltaTime, 0, 0);
 
 		if (Input.GetKey(KeyCode.B)) {
-			maxSpeed = 20;
+			maxSpeed = 10;
 		} else {
 			maxSpeed = 6;
 		}
