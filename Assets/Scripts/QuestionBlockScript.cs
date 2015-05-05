@@ -8,7 +8,7 @@ public class QuestionBlockScript: MonoBehaviour {
 
 	void Start() {
 		anim = GetComponent<Animator>();
-		Mario = GameObject.Find("Mario").GetComponent<Mario>();
+		Mario = GameObject.Find("Mario Parent").GetComponentInChildren<Mario>();
 	}
 
 	void Update() {

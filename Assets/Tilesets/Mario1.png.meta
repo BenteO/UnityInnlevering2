@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: fa19b372bd11a8644b88164edcdecabc
-timeCreated: 1430155122
+timeCreated: 1430835587
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -91,8 +91,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_1
       rect:
@@ -101,8 +101,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_2
       rect:
@@ -111,8 +111,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_3
       rect:
@@ -121,8 +121,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_4
       rect:
@@ -131,8 +131,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_5
       rect:
@@ -141,8 +141,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_6
       rect:
@@ -151,8 +151,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 22
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .363636374}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_7
       rect:
@@ -241,8 +241,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 24
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .333333343}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_16
       rect:
@@ -251,8 +251,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_17
       rect:
@@ -261,8 +261,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_18
       rect:
@@ -271,8 +271,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_19
       rect:
@@ -281,8 +281,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_20
       rect:
@@ -291,8 +291,8 @@ TextureImporter:
         y: 16
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Mario1_21
       rect:

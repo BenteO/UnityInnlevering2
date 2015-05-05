@@ -9,12 +9,12 @@ public class BreakableBrickScript: MonoBehaviour {
 
 	void Start() {
 		anim = GetComponent<Animator>();
-		Mario = GameObject.Find("Mario").GetComponent<Mario>();
+		Mario = GameObject.Find("Mario Parent").GetComponentInChildren<Mario>();
 	}
 
 	void Update() {
 		anim.SetBool("isFalling", Mario.isFalling);
-		anim.SetInteger("Mario Health", Mario.Health);
+		anim.SetInteger("Mario Health", Mario.health);
 	}
 
 	void OnCollisionEnter2D(Collision2D other) {
