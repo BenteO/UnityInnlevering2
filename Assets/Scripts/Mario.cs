@@ -5,14 +5,13 @@ using System.Collections;
 public class Mario: MonoBehaviour {
 
 	// Jumping
-	float jumpHeight = 4.2f;
+	float jumpHeight = 4.4f;
 	float timeToJumpApex = .5f;
 	float gravity;
 	float jumpVelocity;
-	public bool isFalling = false;
 
 	// Movement
-	float accelerationTimeAirborne = 0.7f;
+	float accelerationTimeAirborne = 1f;
 	float accelerationTimeGrounded = 0.5f;
 	float moveSpeed = 5;
 	float moveSpeedRun = 5;
@@ -21,8 +20,6 @@ public class Mario: MonoBehaviour {
 	float velocityXSmoothing;
 	private bool facingRight = true;
 	public bool turning = false;
-
-
 
 	// Ingame Variables
 	public int health = 1;
@@ -40,6 +37,12 @@ public class Mario: MonoBehaviour {
 	public GameObject fireballSpawner;
 	GameObject attatchedFireball = null;
 
+	// Collisions
+	public bool hitUp;
+	public bool hitDown;
+	public bool hitLeft;
+	public bool hitRight;
+
 
 	void Start() {
 		controller = GetComponent<Controller2D>();
@@ -49,9 +52,13 @@ public class Mario: MonoBehaviour {
 	}
 
 	void Update() {
+		// Collisions 
+		hitUp = controller.collisions.above;
+		hitDown = controller.collisions.below;
+		hitLeft = controller.collisions.left;
+		hitRight = controller.collisions.right;
 		// Checks if Mario is touching the ground and sends bool to animator.
-		bool isGrounded = (controller.collisions.below) ? true : false;
-		anim.SetBool("isGrounded", isGrounded);
+		anim.SetBool("isGrounded", hitDown);
 
 		// To stop gravity from accumulating
 		if(controller.collisions.above || controller.collisions.below) {
@@ -63,34 +70,31 @@ public class Mario: MonoBehaviour {
 		if(Input.GetButtonDown("Jump") && controller.collisions.below) {
 			velocity.y = jumpVelocity;
 		}
+		velocity.y += gravity * Time.deltaTime;
 
-		if(Input.GetButton("Run")) {
-			moveSpeed = moveSpeedSprint;
-		} else {
-			moveSpeed = moveSpeedRun;
-		}
+		moveSpeed= (Input.GetButton("Run"))? moveSpeedSprint : moveSpeedRun;
 
 		// Movement speed calculation
 		float targetVelocityX = input.x * moveSpeed;
-		velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (controller.collisions.below) ? accelerationTimeGrounded : accelerationTimeAirborne); // Dampens the movement so we don't get a sudden start and stop
-		velocity.y += gravity * Time.deltaTime;
+		velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, controller.collisions.below ? accelerationTimeGrounded : accelerationTimeAirborne); // Dampens the movement so we don't get a sudden start and stop
 		controller.move(velocity * Time.deltaTime);
 		if(velocity.x < 1f && velocity.x > -1f && input.x == 0) { // To avoid "infinite fractions"
 			velocity.x = 0f;
 		}
-		if((velocity.x > 4 && input.x < 0) || (velocity.x < -4 && input.x > 0)) {
-			turning = true;
-		} else {
-			turning = false;
-		}
+
+		turning = ((velocity.x > 4 && input.x < 0) || (velocity.x < -4 && input.x > 0)) ? true : false;
 		anim.SetBool("Turning", turning);
 		anim.SetFloat("Speed", velocity.x); // Sends velocity.x to animator to get the correct animation.
 
 		// FLIP!
-		if(input.x > 0 && !facingRight) {
+		if(input.x > 0 && !facingRight && controller.collisions.below) {
 			flip();
-		} else if(input.x < 0 && facingRight) {
+		} else if(input.x < 0 && facingRight && controller.collisions.below) {
 			flip();
+		}
+
+		if(transform.position.y < -1) {
+			health = 0;
 		}
 
 		if(health < 1)
@@ -99,7 +103,12 @@ public class Mario: MonoBehaviour {
 		if(Input.GetKeyDown(KeyCode.B) && fireballAmount < 2 && health == 3) {
 			StartCoroutine("fire");
 		}
+
 		fireballAmount = GameObject.FindGameObjectsWithTag("Fireball").Length;
+
+		anim.SetInteger("Health", health);
+		anim.SetBool("Transforming", transforming);
+
 	}
 
 	void flip() {
@@ -134,12 +143,15 @@ public class Mario: MonoBehaviour {
 
 	void OnCollisionEnter2D(Collision2D other) {
 		if(other.gameObject.tag == "Question Block" || other.gameObject.tag == "Breakable Brick") {
+			
 		}
 
 		if(other.gameObject.tag == "Enemy") {
-			if(!invincible) //midlertidig
-				health--;
-			DestroyObject(other.gameObject);
+			if(!invincible) {//midlertidig
+				health = 1;
+				transforming = true;
+				transforming = false;
+			}
 		}
 
 		if(other.gameObject.tag == "Star") {

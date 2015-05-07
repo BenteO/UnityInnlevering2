@@ -1,27 +1,47 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[RequireComponent(typeof(BoxController))]
 public class BreakableBrickScript: MonoBehaviour {
 
-	Animator anim = null;
-	public Mario Mario;
-	private int MarioHealth;
+	Animator anim;
+	Mario mario;
+	private int marioHealth;
+	bool activate = false;
+	BoxController controller;
+	public GameObject itemInBlock;
+	public bool used = false;
+	public int itemAmount = 1;
+	GameObject item;
+	Vector3 thisPosition;
+
+	Vector3 detectorLength = new Vector3(0, -0.2f, 0);
 
 	void Start() {
-		anim = GetComponent<Animator>();
-		Mario = GameObject.Find("Mario Parent").GetComponentInChildren<Mario>();
+		anim = GetComponentInChildren<Animator>();
+		mario = GameObject.Find("Mario Parent").GetComponentInChildren<Mario>();
+		controller = GetComponent<BoxController>();
+		thisPosition = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);
 	}
 
 	void Update() {
-		anim.SetBool("isFalling", Mario.isFalling);
-		anim.SetInteger("Mario Health", Mario.health);
-	}
+		marioHealth = mario.health;
+		anim.SetInteger("Mario Health", marioHealth);
 
-	void OnCollisionEnter2D(Collision2D other) {
-		anim.SetBool("MarioJumpUnder", true);
-	}
-
-	void OnCollisionExit2D(Collision2D other) {
-		anim.SetBool("MarioJumpUnder", false);
+		controller.detector(detectorLength);
+		if(mario.hitUp && controller.collisions.below) {
+			activate = true;
+		} else {
+			activate = false;
+		}
+		anim.SetBool("MarioJumpUnder", activate);
+		if(used) {
+			item = (GameObject) Instantiate(itemInBlock, thisPosition, Quaternion.identity);
+			used = false;
+			itemAmount--;
+			if(itemAmount <= 0) {
+				Destroy(GetComponentInChildren<QuestionBlockAnimationEvent>());
+			}
+		}
 	}
 }

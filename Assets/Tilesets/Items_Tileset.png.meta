@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: ac65851669f2b2f4381d51a83a2afc2f
-timeCreated: 1430850707
+timeCreated: 1431014094
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -210,7 +210,7 @@ TextureImporter:
     21300406: Items_Tileset_203
     21300408: Items_Tileset_204
     21300410: Items_Tileset_205
-    21300412: Items_Tileset_206
+    21300412: Coin_1
     21300414: Items_Tileset_207
     21300416: Items_Tileset_208
     21300418: Items_Tileset_209
@@ -245,10 +245,10 @@ TextureImporter:
     21300476: Items_Tileset_238
     21300478: Items_Tileset_239
     21300480: Items_Tileset_240
-    21300482: Items_Tileset_241
-    21300484: Items_Tileset_242
-    21300486: Items_Tileset_243
-    21300488: Items_Tileset_244
+    21300482: Coin_2
+    21300484: Coin_3
+    21300486: Coin_4
+    21300488: Coin_5
     21300490: Items_Tileset_245
     21300492: Items_Tileset_246
     21300494: Items_Tileset_247
@@ -2638,7 +2638,7 @@ TextureImporter:
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Items_Tileset_206
+    - name: Coin_1
       rect:
         serializedVersion: 2
         x: 0
@@ -2988,7 +2988,7 @@ TextureImporter:
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Items_Tileset_241
+    - name: Coin_2
       rect:
         serializedVersion: 2
         x: 0
@@ -2998,7 +2998,7 @@ TextureImporter:
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Items_Tileset_242
+    - name: Coin_3
       rect:
         serializedVersion: 2
         x: 16
@@ -3008,7 +3008,7 @@ TextureImporter:
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Items_Tileset_243
+    - name: Coin_4
       rect:
         serializedVersion: 2
         x: 32
@@ -3018,7 +3018,7 @@ TextureImporter:
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Items_Tileset_244
+    - name: Coin_5
       rect:
         serializedVersion: 2
         x: 48
