@@ -6,7 +6,7 @@ using System.Collections;
 public class Controller2D: MonoBehaviour {
 
 	// Which layers the object collides with
-	public LayerMask collisionMask;
+	public LayerMask collisionMask;	
 	public LayerMask interactionMask;
 
 	// To avoid the object from being stuck

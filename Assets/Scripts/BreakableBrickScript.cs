@@ -12,7 +12,7 @@ public class BreakableBrickScript: MonoBehaviour {
 	public GameObject itemInBlock;
 	public bool used = false;
 	public int itemAmount = 1;
-	GameObject item;
+	GameObject item = null;
 	Vector3 thisPosition;
 
 	Vector3 detectorLength = new Vector3(0, -0.2f, 0);
@@ -27,6 +27,7 @@ public class BreakableBrickScript: MonoBehaviour {
 	void Update() {
 		marioHealth = mario.health;
 		anim.SetInteger("Mario Health", marioHealth);
+		anim.SetInteger("Coins", itemAmount);
 
 		controller.detector(detectorLength);
 		if(mario.hitUp && controller.collisions.below) {
@@ -36,11 +37,13 @@ public class BreakableBrickScript: MonoBehaviour {
 		}
 		anim.SetBool("MarioJumpUnder", activate);
 		if(used) {
-			item = (GameObject) Instantiate(itemInBlock, thisPosition, Quaternion.identity);
+			if(itemInBlock != null) {
+				item = (GameObject) Instantiate(itemInBlock, thisPosition, Quaternion.identity);
+			}
 			used = false;
 			itemAmount--;
 			if(itemAmount <= 0) {
-				Destroy(GetComponentInChildren<QuestionBlockAnimationEvent>());
+				Destroy(GetComponentInChildren<UsedAnimationEvent>());
 			}
 		}
 	}

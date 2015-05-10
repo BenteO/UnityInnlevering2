@@ -7,6 +7,7 @@ using System.Collections;
 public class BoxController: MonoBehaviour {
 
 	public LayerMask collisionMask;
+	public LayerMask interactionMask;
 
 	const float skinWidth = .016f;
 	public int horizontalRayCount = 4;
@@ -43,6 +44,7 @@ public class BoxController: MonoBehaviour {
 			Vector2 rayOrigin = (directionX == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight;
 			rayOrigin += Vector2.up * (horizontalRaySpacing * i);
 			RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask);
+			RaycastHit2D hitInteraction = Physics2D.Raycast(rayOrigin, Vector2.up * directionX, rayLength, interactionMask);
 
 			Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLength, Color.red);
 
@@ -52,6 +54,9 @@ public class BoxController: MonoBehaviour {
 
 				collisions.left = directionX == -1;
 				collisions.right = directionX == 1;
+			}
+			if(hitInteraction) {
+				collisions.interaction = true;
 			}
 		}
 	}
@@ -63,6 +68,7 @@ public class BoxController: MonoBehaviour {
 			Vector2 rayOrigin = (directionY == -1) ? raycastOrigins.bottomLeft : raycastOrigins.topLeft;
 			rayOrigin += Vector2.right * (verticalRaySpacing * i + testDistance.x);
 			RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLength, collisionMask);
+			RaycastHit2D hitInteraction = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLength, interactionMask);
 
 			Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red);
 
@@ -72,6 +78,9 @@ public class BoxController: MonoBehaviour {
 
 				collisions.below = directionY == -1;
 				collisions.above = directionY == 1;
+			}
+			if(hitInteraction) {
+				collisions.interaction = true;
 			}
 		}
 	}
@@ -106,10 +115,12 @@ public class BoxController: MonoBehaviour {
 	public struct collisionInfo {
 		public bool above, below;
 		public bool left, right;
+		public bool interaction;
 
 		public void reset() {
 			above = below = false;
 			left = right = false;
+			interaction = false;
 		}
 	}
 }

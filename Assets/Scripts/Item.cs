@@ -5,6 +5,8 @@ using System.Collections;
 public class Item: MonoBehaviour {
 
 	Controller2D controller;
+	Animator anim;
+	Mario mario;
 
 	public float moveSpeed = 0f;
 	public float gravity = -3f;
@@ -14,10 +16,15 @@ public class Item: MonoBehaviour {
 	// Use this for initialization
 	void Start() {
 		controller = GetComponent<Controller2D>();
+		anim = GetComponentInChildren<Animator>();
+		mario = GameObject.Find("Mario Parent").GetComponent<Mario>();
 	}
 
 	// Update is called once per frame
 	void Update() {
+		if(this.gameObject.tag == "TransformingItem") {
+			anim.SetInteger("Health", mario.health);
+		}
 		if(controller.collisions.above || controller.collisions.below) {
 			velocity.y = 0;
 		}
@@ -31,6 +38,11 @@ public class Item: MonoBehaviour {
 		controller.move(velocity);
 
 		if(transform.position.y < -1) {
+			destroyItem();
+		}
+
+		if(controller.collisions.interaction && this.gameObject.tag == "TransformingItem") {
+			mario.StartCoroutine("transformCoroutine");
 			destroyItem();
 		}
 	}

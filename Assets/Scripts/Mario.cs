@@ -12,7 +12,7 @@ public class Mario: MonoBehaviour {
 
 	// Movement
 	float accelerationTimeAirborne = 1f;
-	float accelerationTimeGrounded = 0.5f;
+	float accelerationTimeGrounded = 0.4f;
 	float moveSpeed = 5;
 	float moveSpeedRun = 5;
 	float moveSpeedSprint = 10;
@@ -29,6 +29,7 @@ public class Mario: MonoBehaviour {
 	public bool shooting = false;
 	public bool crouching = false;
 	int fireballAmount = 0;
+	bool gameFinish = false;
 
 	// GameObject Components
 	public Animator anim;
@@ -36,15 +37,18 @@ public class Mario: MonoBehaviour {
 	public GameObject fireball;
 	public GameObject fireballSpawner;
 	GameObject attatchedFireball = null;
+	BoxCollider2D boxCollider;
 
 	// Collisions
 	public bool hitUp;
 	public bool hitDown;
 	public bool hitLeft;
 	public bool hitRight;
+	public bool interaction;
 
 
 	void Start() {
+		boxCollider = GetComponent<BoxCollider2D>();
 		controller = GetComponent<Controller2D>();
 		// MATH!
 		gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2); // s = v0 * t + 1/2 * a * t^2 -> a = 2s/t^2. Siden gravitasjonen fungerer mot positiv retning (opp) tar vi den negative verdien
@@ -52,11 +56,19 @@ public class Mario: MonoBehaviour {
 	}
 
 	void Update() {
+		if(health == 1) {
+			boxCollider.size = new Vector2(boxCollider.size.x, 1);
+			boxCollider.offset = new Vector2(0, 0);
+		} else {
+			boxCollider.size = new Vector2(boxCollider.size.x, 2);
+			boxCollider.offset = new Vector2(0, 0.5f);
+		}
 		// Collisions 
 		hitUp = controller.collisions.above;
 		hitDown = controller.collisions.below;
 		hitLeft = controller.collisions.left;
 		hitRight = controller.collisions.right;
+		interaction = controller.collisions.interaction;
 		// Checks if Mario is touching the ground and sends bool to animator.
 		anim.SetBool("isGrounded", hitDown);
 
@@ -109,6 +121,13 @@ public class Mario: MonoBehaviour {
 		anim.SetInteger("Health", health);
 		anim.SetBool("Transforming", transforming);
 
+		if(transform.position.x >= 197.5f && !gameFinish) {
+			gameFinish = true;
+			transform.position = new Vector3(197.5f, transform.position.y, transform.position.z);
+			StartCoroutine("poleFinish");
+			print("poleFinish");
+		}
+
 	}
 
 	void flip() {
@@ -141,34 +160,25 @@ public class Mario: MonoBehaviour {
 		attatchedFireball = null;
 	}
 
-	void OnCollisionEnter2D(Collision2D other) {
-		if(other.gameObject.tag == "Question Block" || other.gameObject.tag == "Breakable Brick") {
-			
+	IEnumerator transformCoroutine() {
+		if(health < 3) {
+			health++;
+			transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
 		}
+		transforming = true;
+		//yield return new WaitForSeconds(0.5f);
+		transforming = false;
+		yield return null;
+	}
 
-		if(other.gameObject.tag == "Enemy") {
-			if(!invincible) {//midlertidig
-				health = 1;
-				transforming = true;
-				transforming = false;
-			}
-		}
-
-		if(other.gameObject.tag == "Star") {
-			invincible = true;
-			DestroyObject(other.gameObject);
-		}
-		if(other.gameObject.tag == "Magic") {
-			health = 2;
-			DestroyObject(other.gameObject);
-		}
-		if(other.gameObject.tag == "Green") {
-			lives++;
-			DestroyObject(other.gameObject);
-		}
-		if(other.gameObject.tag == "Fire") {
-			health = 3;
-			DestroyObject(other.gameObject);
+	IEnumerator poleFinish() {
+		velocity.x = 0;
+		velocity.y = 0;
+		anim.SetBool("Climbing", true);
+		yield return new WaitForSeconds(1);
+		anim.SetBool("Climbing", false);
+		if(transform.position.y <= 3) {
+			anim.SetBool("GameFinish", true);
 		}
 	}
 }
