@@ -12,7 +12,7 @@ public class Mario: MonoBehaviour {
 
 	// Movement
 	float accelerationTimeAirborne = 1f;
-	float accelerationTimeGrounded = 0.4f;
+	float accelerationTimeGrounded = 0.3f;
 	float moveSpeed = 5;
 	float moveSpeedRun = 5;
 	float moveSpeedSprint = 10;
@@ -53,13 +53,15 @@ public class Mario: MonoBehaviour {
 		// MATH!
 		gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2); // s = v0 * t + 1/2 * a * t^2 -> a = 2s/t^2. Siden gravitasjonen fungerer mot positiv retning (opp) tar vi den negative verdien
 		jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex; // v = a * t. Vi tar absoluttverdien av gravity for å alltid få positiv jumpVelocity
+		anim.SetInteger("Health", health);
 	}
 
 	void Update() {
+		// BoxCollider2D resize
 		if(health == 1) {
 			boxCollider.size = new Vector2(boxCollider.size.x, 1);
 			boxCollider.offset = new Vector2(0, 0);
-		} else {
+		} else if(health <= 2 && !crouching){
 			boxCollider.size = new Vector2(boxCollider.size.x, 2);
 			boxCollider.offset = new Vector2(0, 0.5f);
 		}
@@ -94,6 +96,18 @@ public class Mario: MonoBehaviour {
 			velocity.x = 0f;
 		}
 
+		// Crouching
+		if(Input.GetKey(KeyCode.S) && health >= 2) {
+			boxCollider.size = new Vector2(boxCollider.size.x, 1.375f);
+			boxCollider.offset = new Vector2(0, 0.1875f);
+			crouching = true;
+			moveSpeed = 0;
+		} else {
+			crouching = false;
+			moveSpeed = 5;
+		}
+		anim.SetBool("Crouching", crouching);
+
 		turning = ((velocity.x > 4 && input.x < 0) || (velocity.x < -4 && input.x > 0)) ? true : false;
 		anim.SetBool("Turning", turning);
 		anim.SetFloat("Speed", velocity.x); // Sends velocity.x to animator to get the correct animation.
@@ -118,8 +132,6 @@ public class Mario: MonoBehaviour {
 
 		fireballAmount = GameObject.FindGameObjectsWithTag("Fireball").Length;
 
-		anim.SetInteger("Health", health);
-		anim.SetBool("Transforming", transforming);
 
 		if(transform.position.x >= 197.5f && !gameFinish) {
 			gameFinish = true;
@@ -128,6 +140,7 @@ public class Mario: MonoBehaviour {
 			print("poleFinish");
 		}
 
+		print("Timescale: " + Time.timeScale);
 	}
 
 	void flip() {
@@ -149,6 +162,7 @@ public class Mario: MonoBehaviour {
 
 	IEnumerator fire() {
 		shooting = true;
+		anim.SetBool("Shooting", shooting);
 		attatchedFireball = (GameObject) Instantiate(fireball, fireballSpawner.transform.position, Quaternion.identity);
 		if(facingRight) {
 			attatchedFireball.GetComponent<Fireball>().moveVelocity = 10;
@@ -157,18 +171,26 @@ public class Mario: MonoBehaviour {
 		}
 		yield return new WaitForSeconds(1f);
 		shooting = false;
+		anim.SetBool("Shooting", shooting);
 		attatchedFireball = null;
 	}
 
 	IEnumerator transformCoroutine() {
 		if(health < 3) {
 			health++;
+			anim.SetInteger("Health", health);
 			transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
+			transforming = true;
+			anim.SetBool("Transforming", transforming);
+			if(Time.timeScale == 1) {
+				yield return new WaitForSeconds(0.1f);
+			}
+			transforming = false;
+			anim.SetBool("Transforming", transforming);
+			Time.timeScale = 1;
 		}
-		transforming = true;
-		//yield return new WaitForSeconds(0.5f);
-		transforming = false;
 		yield return null;
+		print("Transform finished");
 	}
 
 	IEnumerator poleFinish() {

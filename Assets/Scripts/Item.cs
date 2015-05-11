@@ -18,13 +18,13 @@ public class Item: MonoBehaviour {
 		controller = GetComponent<Controller2D>();
 		anim = GetComponentInChildren<Animator>();
 		mario = GameObject.Find("Mario Parent").GetComponent<Mario>();
+		if(this.gameObject.tag == "TransformingItem") {
+			anim.SetInteger("Health", mario.health);
+		}
 	}
 
 	// Update is called once per frame
 	void Update() {
-		if(this.gameObject.tag == "TransformingItem") {
-			anim.SetInteger("Health", mario.health);
-		}
 		if(controller.collisions.above || controller.collisions.below) {
 			velocity.y = 0;
 		}
@@ -42,6 +42,7 @@ public class Item: MonoBehaviour {
 		}
 
 		if(controller.collisions.interaction && this.gameObject.tag == "TransformingItem") {
+			print("item get");
 			mario.StartCoroutine("transformCoroutine");
 			destroyItem();
 		}

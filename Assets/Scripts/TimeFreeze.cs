@@ -10,12 +10,14 @@ public class TimeFreeze: MonoBehaviour {
 	}
 
 	public void timeStop() {
-		if(Time.timeScale == 0) {
-			Time.timeScale = 1;
-			anim.updateMode = AnimatorUpdateMode.Normal;
-		} else if(Time.timeScale == 1) {
-			Time.timeScale = 0;
+		if(Time.timeScale == 1) {
 			anim.updateMode = AnimatorUpdateMode.UnscaledTime;
+			Time.timeScale = 0;
 		}
+	}
+
+	public void timeStart() {
+		Time.timeScale = 1;
+		anim.updateMode = AnimatorUpdateMode.Normal;
 	}
 }

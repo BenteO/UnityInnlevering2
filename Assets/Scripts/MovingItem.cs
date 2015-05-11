@@ -8,8 +8,13 @@ public class MovingItem: MonoBehaviour {
 		item = GetComponentInParent<Item>();
 	}
 
-	public void getSpeed() {
+	public void setMushroomSpeed() {
 		item.moveSpeed = 3f;
+		item.gravity = -1f;
+	}
+
+	public void setFireFlowerSpeed() {
+		item.moveSpeed = 0f;
 		item.gravity = -1f;
 	}
 }
