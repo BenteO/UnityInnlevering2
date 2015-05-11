@@ -22,8 +22,6 @@ public class Mario: MonoBehaviour {
 	public bool turning = false;
 
 	// Ingame Variables
-	public int health = 1;
-	public int lives = 1;
 	public bool invincible = false;
 	public bool transforming = false;
 	public bool shooting = false;
@@ -53,15 +51,15 @@ public class Mario: MonoBehaviour {
 		// MATH!
 		gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2); // s = v0 * t + 1/2 * a * t^2 -> a = 2s/t^2. Siden gravitasjonen fungerer mot positiv retning (opp) tar vi den negative verdien
 		jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex; // v = a * t. Vi tar absoluttverdien av gravity for å alltid få positiv jumpVelocity
-		anim.SetInteger("Health", health);
+		anim.SetInteger("Health", GameController.health);
 	}
 
 	void Update() {
 		// BoxCollider2D resize
-		if(health == 1) {
+		if(GameController.health == 1) {
 			boxCollider.size = new Vector2(boxCollider.size.x, 1);
 			boxCollider.offset = new Vector2(0, 0);
-		} else if(health <= 2 && !crouching){
+		} else if(GameController.health <= 2 && !crouching){
 			boxCollider.size = new Vector2(boxCollider.size.x, 2);
 			boxCollider.offset = new Vector2(0, 0.5f);
 		}
@@ -97,7 +95,7 @@ public class Mario: MonoBehaviour {
 		}
 
 		// Crouching
-		if(Input.GetKey(KeyCode.S) && health >= 2) {
+		if(Input.GetKey(KeyCode.S) && GameController.health >= 2) {
 			boxCollider.size = new Vector2(boxCollider.size.x, 1.375f);
 			boxCollider.offset = new Vector2(0, 0.1875f);
 			crouching = true;
@@ -120,13 +118,10 @@ public class Mario: MonoBehaviour {
 		}
 
 		if(transform.position.y < -1) {
-			health = 0;
+			GameController.health = 0;
 		}
 
-		if(health < 1)
-			die();
-
-		if(Input.GetKeyDown(KeyCode.B) && fireballAmount < 2 && health == 3) {
+		if(Input.GetKeyDown(KeyCode.B) && fireballAmount < 2 && GameController.health == 3) {
 			StartCoroutine("fire");
 		}
 
@@ -140,7 +135,6 @@ public class Mario: MonoBehaviour {
 			print("poleFinish");
 		}
 
-		print("Timescale: " + Time.timeScale);
 	}
 
 	void flip() {
@@ -148,16 +142,6 @@ public class Mario: MonoBehaviour {
 		Vector3 theScale = transform.localScale;
 		theScale.x *= -1;
 		transform.localScale = theScale;
-	}
-
-	void die() {
-		lives--;
-		if(lives < 0) {
-		}
-			//endgame;
-		else {
-		}
-		//respawn;
 	}
 
 	IEnumerator fire() {
@@ -169,16 +153,16 @@ public class Mario: MonoBehaviour {
 		} else if(!facingRight) {
 			attatchedFireball.GetComponent<Fireball>().moveVelocity = -10;
 		}
-		yield return new WaitForSeconds(1f);
+		yield return new WaitForSeconds(0.5f);
 		shooting = false;
 		anim.SetBool("Shooting", shooting);
 		attatchedFireball = null;
 	}
 
 	IEnumerator transformCoroutine() {
-		if(health < 3) {
-			health++;
-			anim.SetInteger("Health", health);
+		if(GameController.health < 3) {
+			GameController.health++;
+			anim.SetInteger("Health", GameController.health);
 			transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
 			transforming = true;
 			anim.SetBool("Transforming", transforming);

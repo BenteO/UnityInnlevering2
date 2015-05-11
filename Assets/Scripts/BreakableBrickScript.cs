@@ -25,7 +25,7 @@ public class BreakableBrickScript: MonoBehaviour {
 	}
 
 	void Update() {
-		marioHealth = mario.health;
+		marioHealth = GameController.health;
 		anim.SetInteger("Mario Health", marioHealth);
 		anim.SetInteger("Coins", itemAmount);
 

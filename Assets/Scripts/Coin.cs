@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Coin : MonoBehaviour {
+public class Coin: MonoBehaviour {
 
 	Item item;
+
 	void Start() {
 		item = GetComponentInParent<Item>();
 	}

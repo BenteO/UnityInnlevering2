@@ -19,7 +19,7 @@ public class Item: MonoBehaviour {
 		anim = GetComponentInChildren<Animator>();
 		mario = GameObject.Find("Mario Parent").GetComponent<Mario>();
 		if(this.gameObject.tag == "TransformingItem") {
-			anim.SetInteger("Health", mario.health);
+			anim.SetInteger("Health", GameController.health);
 		}
 	}
 
@@ -37,7 +37,16 @@ public class Item: MonoBehaviour {
 		velocity.x = (facingRight ? moveSpeed : -moveSpeed) * Time.deltaTime;
 		controller.move(velocity);
 
+		if(this.gameObject.tag == "Coin") {
+			controller.detector(new Vector3(0, -0.01f, 0));
+		}
+
 		if(transform.position.y < -1) {
+			destroyItem();
+		}
+
+		if(controller.collisions.interaction && this.gameObject.tag == "Coin") {
+			print("coin get");
 			destroyItem();
 		}
 

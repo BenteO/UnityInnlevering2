@@ -53,6 +53,19 @@ public class Controller2D: MonoBehaviour {
 		transform.Translate(velocity);
 	}
 
+	// For static items (coins). Same as move method
+	public void detector(Vector3 testDistance) {
+		UpdateRaycastOrigins();
+		collisions.reset();
+
+		if(testDistance.x != 0) {
+			horizontalCollisions(ref testDistance);
+		}
+		if(testDistance.y != 0) {
+			verticalCollisions(ref testDistance);
+		}
+	}
+
 	// Checks if the object collides in the x-axis, and stops the object if it collides
 	void horizontalCollisions(ref Vector3 velocity) {
 		// Mathf.Sign returns -1 or 1 if the velocity.x is negative or positive/0 respectively
