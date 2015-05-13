@@ -5,10 +5,12 @@ using System.Collections;
 public class Mario: MonoBehaviour {
 
 	// Jumping
-	float jumpHeight = 4.4f;
-	float timeToJumpApex = .5f;
+	float jumpHeight = 1.5f;
+	float timeToJumpApex = .2f;
 	float gravity;
 	float jumpVelocity;
+	int jumpHoldCount = 0;
+	int jumpHoldCountMax = 35;
 
 	// Movement
 	float accelerationTimeAirborne = 1f;
@@ -16,38 +18,45 @@ public class Mario: MonoBehaviour {
 	float moveSpeed = 5;
 	float moveSpeedRun = 5;
 	float moveSpeedSprint = 10;
-	Vector3 velocity;
+	public Vector3 velocity;
 	float velocityXSmoothing;
 	private bool facingRight = true;
 	public bool turning = false;
+
+	// GameObject Components
+	public Animator anim;
+	Controller2D controller;
+	InteractionController interaction;
+	BoxCollider2D boxCollider;
+	public GameObject fireball;
+	public GameObject fireballSpawner;
+	GameObject attatchedFireball = null;
+
+	// Collisions for any other objects that need access
+	public bool hitUp;
+	public bool hitDown;
+	public bool hitLeft;
+	public bool hitRight;
+	public bool interUp;
+	public bool interDown;
+	public bool interLeft;
+	public bool interRight;
 
 	// Ingame Variables
 	public bool invincible = false;
 	public bool transforming = false;
 	public bool shooting = false;
 	public bool crouching = false;
+	public bool pipe = false;
 	int fireballAmount = 0;
 	bool gameFinish = false;
-
-	// GameObject Components
-	public Animator anim;
-	Controller2D controller;
-	public GameObject fireball;
-	public GameObject fireballSpawner;
-	GameObject attatchedFireball = null;
-	BoxCollider2D boxCollider;
-
-	// Collisions
-	public bool hitUp;
-	public bool hitDown;
-	public bool hitLeft;
-	public bool hitRight;
-	public bool interaction;
+	Vector3 interactionVector = new Vector3(0.01f, 0.01f, 0);
 
 
 	void Start() {
 		boxCollider = GetComponent<BoxCollider2D>();
 		controller = GetComponent<Controller2D>();
+		interaction = GetComponent<InteractionController>();
 		// MATH!
 		gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2); // s = v0 * t + 1/2 * a * t^2 -> a = 2s/t^2. Siden gravitasjonen fungerer mot positiv retning (opp) tar vi den negative verdien
 		jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex; // v = a * t. Vi tar absoluttverdien av gravity for å alltid få positiv jumpVelocity
@@ -63,23 +72,51 @@ public class Mario: MonoBehaviour {
 			boxCollider.size = new Vector2(boxCollider.size.x, 2);
 			boxCollider.offset = new Vector2(0, 0.5f);
 		}
+
 		// Collisions 
 		hitUp = controller.collisions.above;
 		hitDown = controller.collisions.below;
 		hitLeft = controller.collisions.left;
 		hitRight = controller.collisions.right;
-		interaction = controller.collisions.interaction;
-		// Checks if Mario is touching the ground and sends bool to animator.
-		anim.SetBool("isGrounded", hitDown);
+		// Interactions
+		interUp = interaction.collisions.above;
+		interDown = interaction.collisions.below;
+		interLeft = interaction.collisions.left;
+		interRight = interaction.collisions.right;
+		interaction.detect(interactionVector);
 
+		// Checks if Mario is touching the ground and sends bool to animator.
+		if(!pipe) {
+			anim.SetBool("isGrounded", hitDown);
+		}
+		
 		// To stop gravity from accumulating
 		if(controller.collisions.above || controller.collisions.below) {
 			velocity.y = 0;
 		}
-
 		// Input
 		Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+		// Jumping
 		if(Input.GetButtonDown("Jump") && controller.collisions.below) {
+			velocity.y = jumpVelocity;
+		}
+		// Jump higher
+		if(Input.GetButton("Jump") && (jumpHoldCount < jumpHoldCountMax)) {
+			velocity.y += jumpVelocity/18.5f;
+			jumpHoldCount++;
+		}
+
+		// Resets or maxess jumpHoldCount to stop mario from flying away
+		if(controller.collisions.below) {
+			jumpHoldCount = 0;
+		}
+		if(controller.collisions.above || Input.GetButtonUp("Jump")) {
+			jumpHoldCount = jumpHoldCountMax;
+		}
+
+		// Bounce off enemies
+		if(interaction.tagCollisions.below == "Enemy") {
+			print("bounce");
 			velocity.y = jumpVelocity;
 		}
 		velocity.y += gravity * Time.deltaTime;
@@ -106,6 +143,7 @@ public class Mario: MonoBehaviour {
 		}
 		anim.SetBool("Crouching", crouching);
 
+		// Turning
 		turning = ((velocity.x > 4 && input.x < 0) || (velocity.x < -4 && input.x > 0)) ? true : false;
 		anim.SetBool("Turning", turning);
 		anim.SetFloat("Speed", velocity.x); // Sends velocity.x to animator to get the correct animation.
@@ -117,17 +155,24 @@ public class Mario: MonoBehaviour {
 			flip();
 		}
 
+		// Out of bounds
 		if(transform.position.y < -1) {
 			GameController.health = 0;
 		}
 
+		// Fireball
 		if(Input.GetKeyDown(KeyCode.B) && fireballAmount < 2 && GameController.health == 3) {
 			StartCoroutine("fire");
 		}
-
 		fireballAmount = GameObject.FindGameObjectsWithTag("Fireball").Length;
 
+		// Accessing pipes
+		if(transform.position.y == 6 && (transform.position.x > 57.2f && transform.position.x < 57.8f) && Input.GetKeyDown(KeyCode.S)) {
+			pipe = true;
+			anim.SetBool("Pipe", pipe);
+		}
 
+		// Finishing the Level
 		if(transform.position.x >= 197.5f && !gameFinish) {
 			gameFinish = true;
 			transform.position = new Vector3(197.5f, transform.position.y, transform.position.z);

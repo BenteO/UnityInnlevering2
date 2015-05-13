@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: ac65851669f2b2f4381d51a83a2afc2f
-timeCreated: 1431380726
+timeCreated: 1431474453
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -355,8 +355,8 @@ TextureImporter:
     21300696: Items_Tileset_348
     21300698: Items_Tileset_349
     21300700: Items_Tileset_350
-    21300702: Items_Tileset_351
-    21300704: Items_Tileset_352
+    21300702: Score_Coin_Underground_1
+    21300704: Score_Coin_Underground_2
     21300706: Items_Tileset_353
     21300708: Items_Tileset_354
     21300710: Items_Tileset_355
@@ -536,6 +536,7 @@ TextureImporter:
     21301058: Score_Coin_1
     21301060: Score_Coin_2
     21301062: Score_Coin_3
+    21301064: Score_Coin_Underground_3
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -2101,23 +2102,23 @@ TextureImporter:
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Items_Tileset_351
+    - name: Score_Coin_Underground_1
       rect:
         serializedVersion: 2
         x: 144
-        y: 160
-        width: 16
-        height: 16
+        y: 168
+        width: 8
+        height: 8
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Items_Tileset_352
+    - name: Score_Coin_Underground_2
       rect:
         serializedVersion: 2
-        x: 160
-        y: 160
-        width: 16
-        height: 16
+        x: 152
+        y: 168
+        width: 8
+        height: 8
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -2585,6 +2586,16 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 16
+        y: 168
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: Score_Coin_Underground_3
+      rect:
+        serializedVersion: 2
+        x: 160
         y: 168
         width: 8
         height: 8

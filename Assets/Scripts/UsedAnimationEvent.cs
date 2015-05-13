@@ -5,6 +5,7 @@ public class UsedAnimationEvent: MonoBehaviour {
 
 	QuestionBlockScript QBScript;
 	BreakableBrickScript BBScript;
+	InvicibleBlockScript IBScript;
 
 	// Use this for initialization
 	void Start() {
@@ -14,6 +15,9 @@ public class UsedAnimationEvent: MonoBehaviour {
 		if(GetComponentInParent<BreakableBrickScript>()) {
 			BBScript = GetComponentInParent<BreakableBrickScript>();
 		}
+		if(GetComponentInParent<InvicibleBlockScript>()) {
+			IBScript = GetComponentInParent<InvicibleBlockScript>();
+		}
 	}
 
 	public void use() {
@@ -22,6 +26,9 @@ public class UsedAnimationEvent: MonoBehaviour {
 		}
 		if(BBScript != null) {
 			BBScript.used = true;
+		}
+		if(IBScript != null) {
+			IBScript.used = true;
 		}
 	}
 }

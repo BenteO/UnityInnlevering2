@@ -29,6 +29,11 @@ public class GameController: MonoBehaviour {
 		} else if(gameController != this) {
 			Destroy(this.gameObject);
 		}
+		if(Application.loadedLevelName == "Main Scene") {
+			Time.timeScale = 0;
+		} else {
+			Time.timeScale = 1;
+		}
 	}
 
 	void Start() {
@@ -84,7 +89,6 @@ public class GameController: MonoBehaviour {
 	// Coroutine reduces timer by 1 each loop (The game is faster than real-time)
 	IEnumerator Countdown() {
 		while(timer > 0) {
-			print("counting down");
 			timer--;
 			yield return new WaitForSeconds(0.4f);
 		}

@@ -27,7 +27,7 @@ public class InvicibleBlockScript: MonoBehaviour {
 
 	void Update() {
 		controller.detector(detectorLength);
-		if(mario.interaction && controller.collisions.interaction) {
+		if(mario.interUp && !(mario.velocity.y < 0) && controller.collisions.interaction) {
 			activate = true;
 			spriteRenderer.color = new Vector4(255, 255, 255, 255);
 			controller.collisionMask = LayerMask.GetMask("Player", "Fireball", "Items");

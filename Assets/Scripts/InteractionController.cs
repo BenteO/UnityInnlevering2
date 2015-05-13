@@ -3,10 +3,10 @@ using System.Collections;
 
 // The object must have a BoxCollider2D to work,so it forces the object to have it
 [RequireComponent(typeof(BoxCollider2D))]
-public class Controller2D: MonoBehaviour {
+public class InteractionController: MonoBehaviour {
 
 	// Which layers the object collides with
-	public LayerMask collisionMask;	
+	public LayerMask interactionMask;
 
 	// To avoid the object from being stuck
 	const float skinWidth = .016f;
@@ -19,86 +19,108 @@ public class Controller2D: MonoBehaviour {
 	float verticalRaySpacing;
 
 	// For creating bounds for the raycasting
-	BoxCollider2D marioCollider;
+	BoxCollider2D boxCollider;
 	// Where the rays originate
 	RaycastOrigins raycastOrigins;
 	// Returns true or false based on where the collision is
 	public collisionInfo collisions;
+	// Returns the tag of the object we collided with
+	public collisionTagInfo tagCollisions;
 
 	void Start() {
 		// Get stuff
-		marioCollider = GetComponent<BoxCollider2D>();
+		boxCollider = GetComponent<BoxCollider2D>();
 		// Only needed once
 		CalculateRaySpacing();
 	}
 
 	// For movement
-	public void move(Vector3 velocity) {
+	public void detect(Vector3 detectVector) {
 		// Updates origin of raycast based on the objects velocity
 		UpdateRaycastOrigins();
 		// Sets all collisions to default
 		collisions.reset();
+		tagCollisions.reset();
 
 		// If the velocity != 0 in one direction, the correct method is feeded a reference of the velocity parameter
 		// "ref" allows the method to directly change the value of the parameter instead of changing the duplicated parameter
-		if(velocity.x != 0) {
-			horizontalCollisions(ref velocity);
+		if(detectVector.x != 0) {
+			horizontalCollisions(ref detectVector);
 		}
-		if(velocity.y != 0) {
-			verticalCollisions(ref velocity);
+		if(detectVector.y != 0) {
+			verticalCollisions(ref detectVector);
 		}
-
-		// Changes the position
-		transform.Translate(velocity);
 	}
 
 	// Checks if the object collides in the x-axis, and stops the object if it collides
 	void horizontalCollisions(ref Vector3 velocity) {
-		// Mathf.Sign returns -1 or 1 if the velocity.x is negative or positive/0 respectively
-		float directionX = Mathf.Sign(velocity.x);
 		// Length of the ray
 		float rayLength = Mathf.Abs(velocity.x) + skinWidth;
 		// Loop to draw the horizontal lines
 		for(int i = 0; i < horizontalRayCount; i++) {
 			// Checks if it starts bottom left or bottom right
-			Vector2 rayOrigin = (directionX == -1) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight;
+			Vector2 rayOriginLeft = raycastOrigins.bottomLeft;
+			Vector2 rayOriginRight = raycastOrigins.bottomRight;
 			// The y-position of the line
-			rayOrigin += Vector2.up * (horizontalRaySpacing * i);
-			// Checks if it hits something on the collisionMask
-			RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask);
+			rayOriginLeft += Vector2.up * (horizontalRaySpacing * i);
+			rayOriginRight += Vector2.up * (horizontalRaySpacing * i);
+			// Checks if it hits something on the interactionMask
+			RaycastHit2D hitLeft = Physics2D.Raycast(rayOriginLeft, Vector2.right * -1, rayLength, interactionMask);
+			RaycastHit2D hitRight = Physics2D.Raycast(rayOriginRight, Vector2.right * 1, rayLength, interactionMask);
+
 			// Draws the rays. Ignored by camera, but visible in scene windows
-			Debug.DrawRay(rayOrigin, Vector2.right * directionX * rayLength, Color.red);
+			Debug.DrawRay(rayOriginLeft, Vector2.right * -1 * rayLength, Color.blue);
+			Debug.DrawRay(rayOriginRight, Vector2.right * 1 * rayLength, Color.blue);
 
-			if(hit) {
+			if(hitLeft) {
 				// Makes the object unable to move (velocity = 0)
-				velocity.x = (hit.distance - skinWidth) * directionX;
+				velocity.x = (hitLeft.distance - skinWidth) * -1;
 				// changes the length of the rays
-				rayLength = hit.distance;
-
+				rayLength = hitLeft.distance;
 				// Returns true to left or right collision
-				collisions.left = directionX == -1;
-				collisions.right = directionX == 1;
+				collisions.left = true;
+				tagCollisions.left = hitLeft.collider.tag;
 			}
+			if(hitRight) {
+				// Makes the object unable to move (velocity = 0)
+				velocity.x = (hitLeft.distance - skinWidth) * 1;
+				// changes the length of the rays
+				rayLength = hitLeft.distance;
+				// Returns true to left or right collision
+				collisions.right = true;
+				tagCollisions.right = hitRight.collider.tag;
+			}
+
 		}
 	}
 
 	// Same as over, but vertical
 	void verticalCollisions(ref Vector3 velocity) {
-		float directionY = Mathf.Sign(velocity.y);
 		float rayLength = Mathf.Abs(velocity.y) + skinWidth;
 		for(int i = 0; i < verticalRayCount; i++) {
-			Vector2 rayOrigin = (directionY == -1) ? raycastOrigins.bottomLeft : raycastOrigins.topLeft;
-			rayOrigin += Vector2.right * (verticalRaySpacing * i + velocity.x);
-			RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLength, collisionMask);
+			Vector2 rayOriginBelow = raycastOrigins.bottomLeft;
+			Vector2 rayOriginAbove = raycastOrigins.topLeft;
+			rayOriginBelow += Vector2.right * (verticalRaySpacing * i + velocity.x);
+			rayOriginAbove += Vector2.right * (verticalRaySpacing * i + velocity.x);
+			RaycastHit2D hitBelow = Physics2D.Raycast(rayOriginBelow, Vector2.up * -1, rayLength, interactionMask);
+			RaycastHit2D hitAbove = Physics2D.Raycast(rayOriginAbove, Vector2.up * 1, rayLength, interactionMask);
 
-			Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red);
+			Debug.DrawRay(rayOriginBelow, Vector2.up * -1 * rayLength, Color.blue);
+			Debug.DrawRay(rayOriginAbove, Vector2.up * 1 * rayLength, Color.blue);
 
-			if(hit) {
-				velocity.y = (hit.distance - skinWidth) * directionY;
-				rayLength = hit.distance;
+			if(hitBelow) {
+				velocity.y = (hitBelow.distance - skinWidth) * -1;
+				rayLength = hitBelow.distance;
 
-				collisions.below = directionY == -1;
-				collisions.above = directionY == 1;
+				collisions.below = true;
+				tagCollisions.below = hitBelow.collider.tag;
+			}
+			if(hitAbove) {
+				velocity.y = (hitAbove.distance - skinWidth) * -1;
+				rayLength = hitAbove.distance;
+
+				collisions.above = true;
+				tagCollisions.above = hitAbove.collider.tag;
 			}
 		}
 	}
@@ -106,7 +128,7 @@ public class Controller2D: MonoBehaviour {
 	// Calculates origins of the raycast because the bounds are moving with the object
 	void UpdateRaycastOrigins() {
 		// Makes bounds for the origins
-		Bounds bounds = marioCollider.bounds;
+		Bounds bounds = boxCollider.bounds;
 		// Makes the bounds slightly smaller
 		bounds.Expand(skinWidth * -2);
 
@@ -120,7 +142,7 @@ public class Controller2D: MonoBehaviour {
 	// Spacing
 	void CalculateRaySpacing() {
 		// Same as above
-		Bounds bounds = marioCollider.bounds;
+		Bounds bounds = boxCollider.bounds;
 		bounds.Expand(skinWidth * -2);
 
 		// Limits the amount of rays between 2 and whatever 
@@ -146,6 +168,17 @@ public class Controller2D: MonoBehaviour {
 		public void reset() {
 			above = below = false;
 			left = right = false;
+		}
+	}
+
+	// Allows us to see which tag collided with the ray
+	public struct collisionTagInfo {
+		public string above, below;
+		public string left, right;
+
+		public void reset() {
+			above = below = null;
+			left = right = null;
 		}
 	}
 }
