@@ -15,9 +15,9 @@ public class Mario: MonoBehaviour {
 	// Movement
 	float accelerationTimeAirborne = 1f;
 	float accelerationTimeGrounded = 0.3f;
-	float moveSpeed = 5;
-	float moveSpeedRun = 5;
-	float moveSpeedSprint = 10;
+	float moveSpeed = 4;
+	float moveSpeedRun = 4;
+	float moveSpeedSprint = 9;
 	public Vector3 velocity;
 	float velocityXSmoothing;
 	private bool facingRight = true;
@@ -51,6 +51,7 @@ public class Mario: MonoBehaviour {
 	int fireballAmount = 0;
 	bool gameFinish = false;
 	Vector3 interactionVector = new Vector3(0.01f, 0.01f, 0);
+	bool dead = false;
 
 
 	void Start() {
@@ -60,15 +61,18 @@ public class Mario: MonoBehaviour {
 		// MATH!
 		gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2); // s = v0 * t + 1/2 * a * t^2 -> a = 2s/t^2. Siden gravitasjonen fungerer mot positiv retning (opp) tar vi den negative verdien
 		jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex; // v = a * t. Vi tar absoluttverdien av gravity for å alltid få positiv jumpVelocity
-		anim.SetInteger("Health", GameController.health);
+		anim.SetInteger("Health", GameController.gameController.health);
+		if(GameController.gameController.fromPipe && Application.loadedLevelName == "1-1") {
+			transform.position = new Vector3(165.3f, 4f, 0);
+		}
 	}
 
 	void Update() {
 		// BoxCollider2D resize
-		if(GameController.health == 1) {
+		if(GameController.gameController.health == 1) {
 			boxCollider.size = new Vector2(boxCollider.size.x, 1);
 			boxCollider.offset = new Vector2(0, 0);
-		} else if(GameController.health <= 2 && !crouching){
+		} else if(GameController.gameController.health <= 2 && !crouching){
 			boxCollider.size = new Vector2(boxCollider.size.x, 2);
 			boxCollider.offset = new Vector2(0, 0.5f);
 		}
@@ -121,6 +125,7 @@ public class Mario: MonoBehaviour {
 		}
 		velocity.y += gravity * Time.deltaTime;
 
+		// Changes moveSpeed
 		moveSpeed= (Input.GetButton("Run"))? moveSpeedSprint : moveSpeedRun;
 
 		// Movement speed calculation
@@ -132,14 +137,14 @@ public class Mario: MonoBehaviour {
 		}
 
 		// Crouching
-		if(Input.GetKey(KeyCode.S) && GameController.health >= 2) {
+		if(Input.GetKey(KeyCode.S) && GameController.gameController.health >= 2) {
 			boxCollider.size = new Vector2(boxCollider.size.x, 1.375f);
 			boxCollider.offset = new Vector2(0, 0.1875f);
 			crouching = true;
 			moveSpeed = 0;
 		} else {
 			crouching = false;
-			moveSpeed = 5;
+			moveSpeed = moveSpeedRun;
 		}
 		anim.SetBool("Crouching", crouching);
 
@@ -155,21 +160,23 @@ public class Mario: MonoBehaviour {
 			flip();
 		}
 
-		// Out of bounds
-		if(transform.position.y < -1) {
-			GameController.health = 0;
-		}
-
 		// Fireball
-		if(Input.GetKeyDown(KeyCode.B) && fireballAmount < 2 && GameController.health == 3) {
+		if(Input.GetKeyDown(KeyCode.B) && fireballAmount < 2 && GameController.gameController.health >= 3) {
 			StartCoroutine("fire");
 		}
 		fireballAmount = GameObject.FindGameObjectsWithTag("Fireball").Length;
 
 		// Accessing pipes
-		if(transform.position.y == 6 && (transform.position.x > 57.2f && transform.position.x < 57.8f) && Input.GetKeyDown(KeyCode.S)) {
+		if(transform.position.y == 6 && (transform.position.x > 57.2f && transform.position.x < 57.8f) && Input.GetKeyDown(KeyCode.S) && Application.loadedLevelName == "1-1") {
 			pipe = true;
-			anim.SetBool("Pipe", pipe);
+			anim.SetBool("PipeDown", pipe);
+			GameController.gameController.pipeDown();
+		}
+		if(transform.position.x >= 12 && (transform.position.y >= 2f && transform.position.y < 2.1f) && (Input.GetAxisRaw("Horizontal") > 0) && Application.loadedLevelName == "1-1Underground") {
+			pipe = true;
+			anim.SetBool("PipeRight", pipe);
+			GameController.gameController.fromPipe = true;
+			GameController.gameController.pipeUp();
 		}
 
 		// Finishing the Level
@@ -180,6 +187,25 @@ public class Mario: MonoBehaviour {
 			print("poleFinish");
 		}
 
+		// Losing health
+		// Out of bounds
+		if(transform.position.y < -1 && !dead) {
+			dead = true;
+			velocity.x = 0;
+			velocity.y = 0;
+			GameController.gameController.healthZero();
+		}
+		// Touches enemy
+		if((interaction.tagCollisions.left == "Enemy" || interaction.tagCollisions.right == "Enemy" || interaction.tagCollisions.above == "Enemy") && !interaction.collisions.below) {
+			print("OW");
+			if(GameController.gameController.health > 1) {
+				GameController.gameController.health = 1;
+				StartCoroutine("transformCoroutine");
+			} else if(GameController.gameController.health == 1) {
+				GameController.gameController.health = 0;
+			}
+		}
+		anim.SetInteger("Health", GameController.gameController.health);
 	}
 
 	void flip() {
@@ -205,19 +231,15 @@ public class Mario: MonoBehaviour {
 	}
 
 	IEnumerator transformCoroutine() {
-		if(GameController.health < 3) {
-			GameController.health++;
-			anim.SetInteger("Health", GameController.health);
-			transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
-			transforming = true;
-			anim.SetBool("Transforming", transforming);
-			if(Time.timeScale == 1) {
-				yield return new WaitForSeconds(0.1f);
-			}
-			transforming = false;
-			anim.SetBool("Transforming", transforming);
-			Time.timeScale = 1;
+		transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
+		transforming = true;
+		anim.SetBool("Transforming", transforming);
+		if(Time.timeScale == 1) {
+			yield return new WaitForSeconds(0.1f);
 		}
+		transforming = false;
+		anim.SetBool("Transforming", transforming);
+		Time.timeScale = 1;
 		yield return null;
 		print("Transform finished");
 	}

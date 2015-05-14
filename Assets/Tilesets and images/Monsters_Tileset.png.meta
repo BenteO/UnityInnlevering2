@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 556d10efbb341fb4a8e59948479a0be3
-timeCreated: 1431366951
+timeCreated: 1431553338
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -93,8 +93,8 @@ TextureImporter:
         y: 96
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Koopa_Trooper_2
       rect:
@@ -103,8 +103,8 @@ TextureImporter:
         y: 96
         width: 16
         height: 32
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .5, y: .25}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: Koopa_Trooper_Shell_1
       rect:

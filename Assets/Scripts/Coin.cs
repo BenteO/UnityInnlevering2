@@ -10,7 +10,7 @@ public class Coin: MonoBehaviour {
 	}
 
 	public void destroyThis() {
-		GameController.coins++;
+		GameController.gameController.coins++;
 		item.destroyItem();
 	}
 }

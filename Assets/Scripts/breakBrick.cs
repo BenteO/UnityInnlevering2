@@ -20,10 +20,18 @@ public class breakBrick: MonoBehaviour {
 	void Update() {
 		UpdatePieceOrigins();
 		if(GameObject.FindGameObjectWithTag("piece")) {
-			pieceTL.transform.position = pieceOrigins.topLeft;
-			pieceTR.transform.position = pieceOrigins.topRight;
-			pieceBL.transform.position = pieceOrigins.bottomLeft;
-			pieceBR.transform.position = pieceOrigins.bottomRight;
+			if(pieceTL != null) {
+				pieceTL.transform.position = pieceOrigins.topLeft;
+			}
+			if(pieceTR != null) {
+				pieceTR.transform.position = pieceOrigins.topRight;
+			}
+			if(pieceBL != null) {
+				pieceBL.transform.position = pieceOrigins.bottomLeft;
+			}
+			if(pieceBR != null) {
+				pieceBR.transform.position = pieceOrigins.bottomRight;
+			}
 		}
 	}
 

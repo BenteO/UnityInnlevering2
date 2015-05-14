@@ -21,7 +21,7 @@ public class Item: MonoBehaviour {
 		anim = GetComponentInChildren<Animator>();
 		mario = GameObject.Find("Mario Parent").GetComponent<Mario>();
 		if(this.gameObject.tag == "TransformingItem") {
-			anim.SetInteger("Health", GameController.health);
+			anim.SetInteger("Health", GameController.gameController.health);
 		}
 	}
 
@@ -47,18 +47,21 @@ public class Item: MonoBehaviour {
 		// If static coin
 		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "Coin") {
 			GainPoints.increaseScoreStatic(200);
-			GameController.coins++;
+			GameController.gameController.coins++;
 			destroyItem();
 		}
 		// If transform item
 		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "TransformingItem") {
+			if(GameController.gameController.health < 3) {
+				GameController.gameController.health++;
+			}
 			mario.StartCoroutine("transformCoroutine");
 			GainPoints.increaseScoreStatic(1000);
 			destroyItem();
 		}
 		// If oneUp mushroom
 		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "OneUp") {
-			GameController.lives++;
+			GameController.gameController.lives++;
 			destroyItem();
 		}
 	}

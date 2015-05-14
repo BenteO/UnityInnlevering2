@@ -116,7 +116,7 @@ public class InteractionController: MonoBehaviour {
 				tagCollisions.below = hitBelow.collider.tag;
 			}
 			if(hitAbove) {
-				velocity.y = (hitAbove.distance - skinWidth) * -1;
+				velocity.y = (hitAbove.distance - skinWidth) * 1;
 				rayLength = hitAbove.distance;
 
 				collisions.above = true;

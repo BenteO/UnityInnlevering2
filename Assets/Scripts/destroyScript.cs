@@ -12,4 +12,8 @@ public class destroyScript: MonoBehaviour {
 	public void disableBoxCollider() {
 		ObjectToDestroy.GetComponent<BoxCollider2D>().enabled = !ObjectToDestroy.GetComponent<BoxCollider2D>().enabled;
 	}
+
+	public void changeLayer() {
+		ObjectToDestroy.layer = 11; // Ignore-layer
+	}
 }

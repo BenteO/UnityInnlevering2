@@ -20,4 +20,8 @@ public class TimeFreeze: MonoBehaviour {
 		Time.timeScale = 1;
 		anim.updateMode = AnimatorUpdateMode.Normal;
 	}
+
+	public void Dead() {
+		GameController.gameController.healthZero();
+	}
 }

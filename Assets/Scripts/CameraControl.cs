@@ -29,7 +29,7 @@ public class CameraControl: MonoBehaviour {
 			min = BoundingBox.bounds.min;
 			// Følger Mario
 			if(Mathf.Abs(x - Mario.position.x) > Margin.x)
-				x = Mathf.Lerp(x, Mario.position.x + 2.5f, Smoothing.x * Time.deltaTime);
+				x = Mathf.Lerp(x, Mario.position.x + 0.5f, Smoothing.x * Time.deltaTime);
 
 			var cameraHalfWidth = mainCamera.orthographicSize * ((float) Screen.width / Screen.height);
 

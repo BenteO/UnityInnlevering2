@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent(typeof(Controller2D))]
+[RequireComponent(typeof(Controller2D), typeof(InteractionController))]
 public class EnemyScript: MonoBehaviour {
 
 	public float moveSpeed = 0;
@@ -35,10 +35,16 @@ public class EnemyScript: MonoBehaviour {
 		// Interaction
 		interaction.detect(interactionVector);
 		// Die
-		if(interaction.collisions.above && interaction.tagCollisions.above == "Player") {
-			print("die");
+		if(interaction.collisions.above && interaction.tagCollisions.above == "Player" && !interaction.collisions.below) {
 			moveSpeed = 0;
 			anim.Play("DieJump");
+		}
+		if(interaction.tagCollisions.above == "Fireball"|| interaction.tagCollisions.left == "Fireball") {
+			moveSpeed = 0;
+			anim.Play("DieFireRight");
+		} else if(interaction.tagCollisions.below == "Fireball" || interaction.tagCollisions.right == "Fireball") {
+			moveSpeed = 0;
+			anim.Play("DieFireLeft");
 		}
 	}
 }
