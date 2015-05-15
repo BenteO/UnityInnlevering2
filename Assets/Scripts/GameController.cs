@@ -18,7 +18,9 @@ public class GameController: MonoBehaviour {
 	public int topScore = 0;
 	public int coins = 0;
 	public bool fromPipe = false;
+	public int scoreMultiplier = 1;
 	bool timeIsUp = false;
+	public bool star = false;
 
 	// Checks if another GameController exists and either keeps or destroys this
 	void Awake() {
@@ -36,8 +38,8 @@ public class GameController: MonoBehaviour {
 	}
 
 	void Update() {
-
-		print(Time.timeScale);
+		//print("Multiplier: " + scoreMultiplier);
+		//print("Tims.timeScale: " + Time.timeScale);
 		// Pause
 		if(Input.GetButtonDown("Cancel")) {
 			if(Time.timeScale == 1) {
@@ -76,11 +78,9 @@ public class GameController: MonoBehaviour {
 		lives--;
 		timer = 400;
 		if(lives <= 0) {
-			print("lives <= 0");
 			StopAllCoroutines();
 			StartCoroutine(WaitLoadWaitLoad(2f, "Game Over Scene", "Main Scene"));
 		} else {
-			print("lives > 0");
 			StopAllCoroutines();
 			StartCoroutine(WaitLoadWaitLoad(2f, "Death Scene", "1-1"));
 		}
@@ -153,6 +153,11 @@ public class GameController: MonoBehaviour {
 		} else {
 			StopCoroutine("Countdown");
 		}
+	}
+
+	IEnumerator marioInvincible() {
+		yield return new WaitForSeconds(10);
+		star = false;
 	}
 
 	// Save

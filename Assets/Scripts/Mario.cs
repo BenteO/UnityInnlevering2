@@ -6,17 +6,18 @@ public class Mario: MonoBehaviour {
 
 	// Jumping
 	float jumpHeight = 1.5f;
-	float timeToJumpApex = .2f;
+	float timeToJumpApex = 0.2f;
 	float gravity;
 	float jumpVelocity;
+	float jumpVelocityFraction = 18.4f;
 	int jumpHoldCount = 0;
 	int jumpHoldCountMax = 35;
 
 	// Movement
-	float accelerationTimeAirborne = 1f;
-	float accelerationTimeGrounded = 0.3f;
-	float moveSpeed = 4;
-	float moveSpeedRun = 4;
+	float accelerationTimeAirborne = 0.4f;
+	float accelerationTimeGrounded = 0.4f;
+	float moveSpeed = 5f;
+	float moveSpeedRun = 5f;
 	float moveSpeedSprint = 9;
 	public Vector3 velocity;
 	float velocityXSmoothing;
@@ -52,6 +53,8 @@ public class Mario: MonoBehaviour {
 	bool gameFinish = false;
 	Vector3 interactionVector = new Vector3(0.01f, 0.01f, 0);
 	bool dead = false;
+	bool canControl = true;
+	bool recentlyDamaged = false;
 
 
 	void Start() {
@@ -63,11 +66,12 @@ public class Mario: MonoBehaviour {
 		jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex; // v = a * t. Vi tar absoluttverdien av gravity for å alltid få positiv jumpVelocity
 		anim.SetInteger("Health", GameController.gameController.health);
 		if(GameController.gameController.fromPipe && Application.loadedLevelName == "1-1") {
-			transform.position = new Vector3(165.3f, 4f, 0);
+			transform.position = new Vector3(163.5f, 4f, 0);
 		}
 	}
 
 	void Update() {
+		anim.SetBool("Star", GameController.gameController.star);
 		// BoxCollider2D resize
 		if(GameController.gameController.health == 1) {
 			boxCollider.size = new Vector2(boxCollider.size.x, 1);
@@ -98,81 +102,126 @@ public class Mario: MonoBehaviour {
 		if(controller.collisions.above || controller.collisions.below) {
 			velocity.y = 0;
 		}
-		// Input
-		Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-		// Jumping
-		if(Input.GetButtonDown("Jump") && controller.collisions.below) {
-			velocity.y = jumpVelocity;
-		}
-		// Jump higher
-		if(Input.GetButton("Jump") && (jumpHoldCount < jumpHoldCountMax)) {
-			velocity.y += jumpVelocity/18.5f;
-			jumpHoldCount++;
-		}
 
-		// Resets or maxess jumpHoldCount to stop mario from flying away
-		if(controller.collisions.below) {
-			jumpHoldCount = 0;
+// Losing health
+		// Out of bounds
+		if(transform.position.y < -1 && !dead) {
+			canControl = false;
+			dead = true;
+			velocity.x = 0;
+			velocity.y = 0;
+			GameController.gameController.healthZero();
 		}
-		if(controller.collisions.above || Input.GetButtonUp("Jump")) {
-			jumpHoldCount = jumpHoldCountMax;
+		// Touches enemy
+		if(!GameController.gameController.star) {
+			if((interaction.tagCollisions.left == "KoopaTrooperShellMoving" || interaction.tagCollisions.right == "KoopaTrooperShellMoving" || interaction.tagCollisions.left == "Enemy" || interaction.tagCollisions.right == "Enemy" || interaction.tagCollisions.above == "Enemy") && !interaction.collisions.below && (interaction.tagCollisions.below != "Enemy")) {
+				if(GameController.gameController.health > 1 && !recentlyDamaged) {
+					GameController.gameController.health = 1;
+					recentlyDamaged = true;
+					StartCoroutine("transformCoroutine");
+				} else if(GameController.gameController.health == 1 && !recentlyDamaged) {
+					GameController.gameController.health = 0;
+					canControl = false;
+				}
+			}
 		}
+		anim.SetInteger("Health", GameController.gameController.health);
 
-		// Bounce off enemies
-		if(interaction.tagCollisions.below == "Enemy") {
-			print("bounce");
-			velocity.y = jumpVelocity;
+// Input
+		if(canControl) {
+			// Bounce off enemies
+			if(interaction.tagCollisions.below == "Enemy") {
+				Vector3 thisPosition = transform.position;
+				thisPosition.y += 0.3f;
+				transform.position = thisPosition;
+				velocity.y = jumpVelocity;
+				StopCoroutine("multiplierUp");
+				StartCoroutine("multiplierUp");
+			}
+
+			Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+			// Jumping
+			if(Input.GetButtonDown("Jump") && controller.collisions.below) {
+				velocity.y = jumpVelocity;
+			}
+			// Jump higher
+			if(Input.GetButton("Jump") && (jumpHoldCount < jumpHoldCountMax)) {
+				velocity.y += jumpVelocity / jumpVelocityFraction;
+				jumpHoldCount++;
+			}
+
+			// Resets or maxes jumpHoldCount to stop mario from flying away
+			if(controller.collisions.below) {
+				jumpHoldCount = 0;
+				GameController.gameController.scoreMultiplier = 1;
+			}
+			if(controller.collisions.above || Input.GetButtonUp("Jump")) {
+				jumpHoldCount = jumpHoldCountMax;
+			}
+			velocity.y += gravity * Time.deltaTime;
+
+			// Changes moveSpeed
+
+			if(Input.GetButton("Run")) {
+				if(controller.collisions.below) {
+					moveSpeed = moveSpeedSprint;
+					jumpVelocityFraction = 16.8f;
+				} else if(!controller.collisions.below && velocity.x > 4f) {
+					moveSpeed = moveSpeedSprint;
+					jumpVelocityFraction = 16.8f;
+				}
+			} else {
+				moveSpeed = moveSpeedRun;
+				jumpVelocityFraction = 18.4f;
+			}
+
+			// Movement speed calculation
+			float targetVelocityX = input.x * moveSpeed;
+			velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, controller.collisions.below ? accelerationTimeGrounded : accelerationTimeAirborne); // Dampens the movement so we don't get a sudden start and stop
+			controller.move(velocity * Time.deltaTime);
+			if(velocity.x < 1f && velocity.x > -1f && input.x == 0) { // To avoid "infinite fractions"
+				velocity.x = 0f;
+			}
+
+// Fireball
+			if(Input.GetKeyDown(KeyCode.B) && fireballAmount < 2 && GameController.gameController.health >= 3) {
+				StartCoroutine("fire");
+			}
+			fireballAmount = GameObject.FindGameObjectsWithTag("Fireball").Length;
+// Crouching
+			if(Input.GetKey(KeyCode.S) && GameController.gameController.health >= 2) {
+				boxCollider.size = new Vector2(boxCollider.size.x, 1.375f);
+				boxCollider.offset = new Vector2(0, 0.1875f);
+				crouching = true;
+				moveSpeed = 0;
+			} else {
+				crouching = false;
+				moveSpeed = moveSpeedRun;
+			}
+			anim.SetBool("Crouching", crouching);
+
+			// Turning
+			turning = ((velocity.x > 3 && input.x < 0) || (velocity.x < -3 && input.x > 0)) ? true : false;
+			anim.SetBool("Turning", turning);
+			anim.SetFloat("Speed", velocity.x); // Sends velocity.x to animator to get the correct animation.
+
+			// FLIP!
+			if(input.x > 0 && !facingRight && controller.collisions.below) {
+				flip();
+			} else if(input.x < 0 && facingRight && controller.collisions.below) {
+				flip();
+			}
 		}
-		velocity.y += gravity * Time.deltaTime;
-
-		// Changes moveSpeed
-		moveSpeed= (Input.GetButton("Run"))? moveSpeedSprint : moveSpeedRun;
-
-		// Movement speed calculation
-		float targetVelocityX = input.x * moveSpeed;
-		velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, controller.collisions.below ? accelerationTimeGrounded : accelerationTimeAirborne); // Dampens the movement so we don't get a sudden start and stop
-		controller.move(velocity * Time.deltaTime);
-		if(velocity.x < 1f && velocity.x > -1f && input.x == 0) { // To avoid "infinite fractions"
-			velocity.x = 0f;
-		}
-
-		// Crouching
-		if(Input.GetKey(KeyCode.S) && GameController.gameController.health >= 2) {
-			boxCollider.size = new Vector2(boxCollider.size.x, 1.375f);
-			boxCollider.offset = new Vector2(0, 0.1875f);
-			crouching = true;
-			moveSpeed = 0;
-		} else {
-			crouching = false;
-			moveSpeed = moveSpeedRun;
-		}
-		anim.SetBool("Crouching", crouching);
-
-		// Turning
-		turning = ((velocity.x > 4 && input.x < 0) || (velocity.x < -4 && input.x > 0)) ? true : false;
-		anim.SetBool("Turning", turning);
-		anim.SetFloat("Speed", velocity.x); // Sends velocity.x to animator to get the correct animation.
-
-		// FLIP!
-		if(input.x > 0 && !facingRight && controller.collisions.below) {
-			flip();
-		} else if(input.x < 0 && facingRight && controller.collisions.below) {
-			flip();
-		}
-
-		// Fireball
-		if(Input.GetKeyDown(KeyCode.B) && fireballAmount < 2 && GameController.gameController.health >= 3) {
-			StartCoroutine("fire");
-		}
-		fireballAmount = GameObject.FindGameObjectsWithTag("Fireball").Length;
-
 		// Accessing pipes
 		if(transform.position.y == 6 && (transform.position.x > 57.2f && transform.position.x < 57.8f) && Input.GetKeyDown(KeyCode.S) && Application.loadedLevelName == "1-1") {
+			canControl = false;
 			pipe = true;
 			anim.SetBool("PipeDown", pipe);
 			GameController.gameController.pipeDown();
 		}
-		if(transform.position.x >= 12 && (transform.position.y >= 2f && transform.position.y < 2.1f) && (Input.GetAxisRaw("Horizontal") > 0) && Application.loadedLevelName == "1-1Underground") {
+		if(transform.position.x >= 12.1f && (transform.position.y >= 2f && transform.position.y < 2.1f) && (Input.GetAxisRaw("Horizontal") > 0) && Application.loadedLevelName == "1-1Underground") {
+			transform.position = new Vector3(12.1f, 2f, 0);
+			canControl = false;
 			pipe = true;
 			anim.SetBool("PipeRight", pipe);
 			GameController.gameController.fromPipe = true;
@@ -186,26 +235,6 @@ public class Mario: MonoBehaviour {
 			StartCoroutine("poleFinish");
 			print("poleFinish");
 		}
-
-		// Losing health
-		// Out of bounds
-		if(transform.position.y < -1 && !dead) {
-			dead = true;
-			velocity.x = 0;
-			velocity.y = 0;
-			GameController.gameController.healthZero();
-		}
-		// Touches enemy
-		if((interaction.tagCollisions.left == "Enemy" || interaction.tagCollisions.right == "Enemy" || interaction.tagCollisions.above == "Enemy") && !interaction.collisions.below) {
-			print("OW");
-			if(GameController.gameController.health > 1) {
-				GameController.gameController.health = 1;
-				StartCoroutine("transformCoroutine");
-			} else if(GameController.gameController.health == 1) {
-				GameController.gameController.health = 0;
-			}
-		}
-		anim.SetInteger("Health", GameController.gameController.health);
 	}
 
 	void flip() {
@@ -235,13 +264,15 @@ public class Mario: MonoBehaviour {
 		transforming = true;
 		anim.SetBool("Transforming", transforming);
 		if(Time.timeScale == 1) {
-			yield return new WaitForSeconds(0.1f);
+			yield return new WaitForSeconds(0.01f);
 		}
 		transforming = false;
 		anim.SetBool("Transforming", transforming);
 		Time.timeScale = 1;
-		yield return null;
-		print("Transform finished");
+		if(recentlyDamaged) {
+			StartCoroutine("invulnerable");
+		}
+		yield return null;	
 	}
 
 	IEnumerator poleFinish() {
@@ -253,5 +284,26 @@ public class Mario: MonoBehaviour {
 		if(transform.position.y <= 3) {
 			anim.SetBool("GameFinish", true);
 		}
+	}
+
+	IEnumerator multiplierUp() {
+		yield return new WaitForSeconds(0.1f);
+		GameController.gameController.scoreMultiplier++;
+	}
+
+	IEnumerator invulnerable() {
+		print("invulnerable start");
+		float tempTime = 0;
+		do {
+			this.gameObject.GetComponentInChildren<SpriteRenderer>().enabled = !this.gameObject.GetComponentInChildren<SpriteRenderer>().enabled;
+			yield return new WaitForFixedUpdate();
+			tempTime += Time.deltaTime;
+		} while(tempTime < 3);
+		if(tempTime > 3) {
+			recentlyDamaged = false;
+			this.gameObject.GetComponentInChildren<SpriteRenderer>().enabled = true;
+		}
+		print("invulnerable end");
+		yield return null;
 	}
 }

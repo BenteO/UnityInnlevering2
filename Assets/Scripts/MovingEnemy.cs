@@ -1,15 +1,22 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MovingEnemy : MonoBehaviour {
+public class MovingEnemy: MonoBehaviour {
 
-	EnemyScript enemyScript;
+	GoombaScript enemyScript;
+	KoopaTrooperScript koopaTrooperScript;
 
 	public float startSpeed = 0;
 	bool speedSet = false;
 
-	void Start () {
-		enemyScript = GetComponentInParent<EnemyScript>();
+	void Start() {
+		if(GetComponentInParent<GoombaScript>()) {
+			enemyScript = GetComponentInParent<GoombaScript>();
+		}
+		if(GetComponentInParent<KoopaTrooperScript>()) {
+			koopaTrooperScript = GetComponentInParent<KoopaTrooperScript>();
+
+		}
 	}
 
 	// If camera sees the object, give it speed (IF ANY VIEWPORT SEES THE OBJECT, IT GETS SPEED, SO ONLY GAME VIEW VISIBLE)
@@ -19,8 +26,12 @@ public class MovingEnemy : MonoBehaviour {
 			speedSet = true;
 		}
 	}
-	
+
 	public void setSpeed() {
-		enemyScript.moveSpeed = startSpeed;
+		if(enemyScript != null) {
+			enemyScript.moveSpeed = startSpeed;
+		} else if(koopaTrooperScript != null) {
+			koopaTrooperScript.moveSpeed = startSpeed;
+		}
 	}
 }

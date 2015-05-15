@@ -30,6 +30,11 @@ public class Item: MonoBehaviour {
 		if(controller.collisions.above || controller.collisions.below) {
 			velocity.y = 0;
 		}
+
+		if(controller.collisions.below && this.gameObject.tag == "Star") {
+			velocity.y = 0.33f;
+		}
+
 		velocity.y += gravity * Time.deltaTime;
 		if(controller.collisions.right) {
 			facingRight = false;
@@ -41,8 +46,8 @@ public class Item: MonoBehaviour {
 
 		interaction.detect(new Vector3(0.01f, 0.01f, 0));
 
-		if(transform.position.y < -1) {
-			destroyItem();
+		if(transform.position.y < -1 || (transform.position.x - Camera.main.transform.position.x > 15) || (transform.position.x - Camera.main.transform.position.x < -15)) {
+			//destroyItem();
 		}
 		// If static coin
 		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "Coin") {
@@ -62,6 +67,13 @@ public class Item: MonoBehaviour {
 		// If oneUp mushroom
 		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "OneUp") {
 			GameController.gameController.lives++;
+			destroyItem();
+		}
+
+		// If star
+		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "Star") {
+			GameController.gameController.star = true;
+			GameController.gameController.StartCoroutine("marioInvincible");
 			destroyItem();
 		}
 	}

@@ -17,4 +17,9 @@ public class MovingItem: MonoBehaviour {
 		item.moveSpeed = 0f;
 		item.gravity = -1f;
 	}
+
+	public void setStarSpeed() {
+		item.moveSpeed = 4f;
+		item.gravity = -1f;
+	}
 }

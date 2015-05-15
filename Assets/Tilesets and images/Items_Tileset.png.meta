@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: ac65851669f2b2f4381d51a83a2afc2f
-timeCreated: 1431474453
+timeCreated: 1431649236
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -104,10 +104,10 @@ TextureImporter:
     21300194: Items_Tileset_97
     21300196: Items_Tileset_98
     21300198: Items_Tileset_99
-    21300200: Items_Tileset_100
-    21300202: Items_Tileset_101
-    21300204: Items_Tileset_102
-    21300206: Items_Tileset_103
+    21300200: Star_1
+    21300202: Star_2
+    21300204: Star_3
+    21300206: Star_4
     21300208: Items_Tileset_104
     21300210: Items_Tileset_105
     21300212: Items_Tileset_106
@@ -1032,7 +1032,7 @@ TextureImporter:
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Items_Tileset_100
+    - name: Star_1
       rect:
         serializedVersion: 2
         x: 0
@@ -1042,7 +1042,7 @@ TextureImporter:
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Items_Tileset_101
+    - name: Star_2
       rect:
         serializedVersion: 2
         x: 16
@@ -1052,7 +1052,7 @@ TextureImporter:
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Items_Tileset_102
+    - name: Star_3
       rect:
         serializedVersion: 2
         x: 32
@@ -1062,7 +1062,7 @@ TextureImporter:
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: Items_Tileset_103
+    - name: Star_4
       rect:
         serializedVersion: 2
         x: 48
