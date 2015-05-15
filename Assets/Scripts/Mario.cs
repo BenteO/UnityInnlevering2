@@ -34,14 +34,14 @@ public class Mario: MonoBehaviour {
 	GameObject attatchedFireball = null;
 
 	// Collisions for any other objects that need access
-	public bool hitUp;
-	public bool hitDown;
-	public bool hitLeft;
-	public bool hitRight;
-	public bool interUp;
-	public bool interDown;
-	public bool interLeft;
-	public bool interRight;
+	public static bool hitUp;
+	public static bool hitDown;
+	public static bool hitLeft;
+	public static bool hitRight;
+	public static bool interUp;
+	public static bool interDown;
+	public static bool interLeft;
+	public static bool interRight;
 
 	// Ingame Variables
 	public bool invincible = false;
@@ -50,7 +50,6 @@ public class Mario: MonoBehaviour {
 	public bool crouching = false;
 	public bool pipe = false;
 	int fireballAmount = 0;
-	bool gameFinish = false;
 	Vector3 interactionVector = new Vector3(0.01f, 0.01f, 0);
 	bool dead = false;
 	bool canControl = true;
@@ -158,7 +157,6 @@ public class Mario: MonoBehaviour {
 			if(controller.collisions.above || Input.GetButtonUp("Jump")) {
 				jumpHoldCount = jumpHoldCountMax;
 			}
-			velocity.y += gravity * Time.deltaTime;
 
 			// Changes moveSpeed
 
@@ -178,7 +176,6 @@ public class Mario: MonoBehaviour {
 			// Movement speed calculation
 			float targetVelocityX = input.x * moveSpeed;
 			velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, controller.collisions.below ? accelerationTimeGrounded : accelerationTimeAirborne); // Dampens the movement so we don't get a sudden start and stop
-			controller.move(velocity * Time.deltaTime);
 			if(velocity.x < 1f && velocity.x > -1f && input.x == 0) { // To avoid "infinite fractions"
 				velocity.x = 0f;
 			}
@@ -212,7 +209,9 @@ public class Mario: MonoBehaviour {
 				flip();
 			}
 		}
-		// Accessing pipes
+		velocity.y += gravity * Time.deltaTime;
+		controller.move(velocity * Time.deltaTime);
+// Accessing pipes
 		if(transform.position.y == 6 && (transform.position.x > 57.2f && transform.position.x < 57.8f) && Input.GetKeyDown(KeyCode.S) && Application.loadedLevelName == "1-1") {
 			canControl = false;
 			pipe = true;
@@ -228,12 +227,26 @@ public class Mario: MonoBehaviour {
 			GameController.gameController.pipeUp();
 		}
 
-		// Finishing the Level
-		if(transform.position.x >= 197.5f && !gameFinish) {
-			gameFinish = true;
+// Finishing the Level
+		if(transform.position.x >= 197.5f && !GameController.gameController.gameFinish) {
+			canControl = false;
+			GameController.gameController.gameFinish = true;
 			transform.position = new Vector3(197.5f, transform.position.y, transform.position.z);
 			StartCoroutine("poleFinish");
-			print("poleFinish");
+			GainPoints.gainPoints.PointPrefabSpawn = new Vector3(199, 4, 0);
+			if(transform.position.y > 11) {
+				GainPoints.gainPoints.increaseScoreFixed(5000);
+			} else if(transform.position.y > 10) {
+				GainPoints.gainPoints.increaseScoreFixed(4000);
+			} else if(transform.position.y > 8) {
+				GainPoints.gainPoints.increaseScoreFixed(2000);
+			} else if(transform.position.y > 6) {
+				GainPoints.gainPoints.increaseScoreFixed(800);
+			} else if(transform.position.y > 4) {
+				GainPoints.gainPoints.increaseScoreFixed(400);
+			} else {
+				GainPoints.gainPoints.increaseScoreFixed(100);
+			}
 		}
 	}
 
@@ -249,7 +262,7 @@ public class Mario: MonoBehaviour {
 		anim.SetBool("Shooting", shooting);
 		attatchedFireball = (GameObject) Instantiate(fireball, fireballSpawner.transform.position, Quaternion.identity);
 		if(facingRight) {
-			attatchedFireball.GetComponent<Fireball>().moveVelocity = 10;
+			attatchedFireball.GetComponent<Fireball>().moveVelocity = 15;
 		} else if(!facingRight) {
 			attatchedFireball.GetComponent<Fireball>().moveVelocity = -10;
 		}

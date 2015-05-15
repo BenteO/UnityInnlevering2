@@ -17,6 +17,7 @@ public class destroyScript: MonoBehaviour {
 
 	public void changeLayer() {
 		ObjectToDestroy.layer = 11; // Ignore-layer
+		ObjectToDestroy.GetComponent<Controller2D>().collisionMask = LayerMask.GetMask("Default", "Ground");
 	}
 
 	public void changeTag(string tagName) {

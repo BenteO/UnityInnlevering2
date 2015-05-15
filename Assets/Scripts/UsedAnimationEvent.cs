@@ -9,14 +9,14 @@ public class UsedAnimationEvent: MonoBehaviour {
 
 	// Use this for initialization
 	void Start() {
-		if(GetComponentInParent<QuestionBlockScript>()) {
-			QBScript = GetComponentInParent<QuestionBlockScript>();
+		if(GetComponent<QuestionBlockScript>()) {
+			QBScript = GetComponent<QuestionBlockScript>();
 		}
-		if(GetComponentInParent<BreakableBrickScript>()) {
-			BBScript = GetComponentInParent<BreakableBrickScript>();
+		if(GetComponent<BreakableBrickScript>()) {
+			BBScript = GetComponent<BreakableBrickScript>();
 		}
-		if(GetComponentInParent<InvicibleBlockScript>()) {
-			IBScript = GetComponentInParent<InvicibleBlockScript>();
+		if(GetComponent<InvicibleBlockScript>()) {
+			IBScript = GetComponent<InvicibleBlockScript>();
 		}
 	}
 

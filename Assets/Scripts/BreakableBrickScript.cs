@@ -5,8 +5,6 @@ using System.Collections;
 public class BreakableBrickScript: MonoBehaviour {
 
 	Animator anim;
-	Mario mario;
-	private int marioHealth;
 	bool activate = false;
 	BoxController controller;
 	public GameObject itemInBlock;
@@ -18,19 +16,17 @@ public class BreakableBrickScript: MonoBehaviour {
 	Vector3 detectorLength = new Vector3(0, -0.2f, 0);
 
 	void Start() {
-		anim = GetComponentInChildren<Animator>();
-		mario = GameObject.Find("Mario Parent").GetComponentInChildren<Mario>();
+		anim = GetComponent<Animator>();
 		controller = GetComponent<BoxController>();
 		thisPosition = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);
 	}
 
 	void Update() {
-		marioHealth = GameController.gameController.health;
-		anim.SetInteger("Mario Health", marioHealth);
+		anim.SetInteger("Mario Health", GameController.gameController.health);
 		anim.SetInteger("Coins", itemAmount);
 
 		controller.detector(detectorLength);
-		if(mario.hitUp && controller.collisions.below) {
+		if(Mario.hitUp && controller.collisions.below) {
 			activate = true;
 		} else {
 			activate = false;
@@ -39,12 +35,9 @@ public class BreakableBrickScript: MonoBehaviour {
 		if(used) {
 			if(itemInBlock != null) {
 				item = (GameObject) Instantiate(itemInBlock, thisPosition, Quaternion.identity);
+				itemAmount--;
 			}
 			used = false;
-			itemAmount--;
-			if(itemAmount <= 0) {
-				Destroy(GetComponentInChildren<UsedAnimationEvent>());
-			}
 		}
 	}
 }

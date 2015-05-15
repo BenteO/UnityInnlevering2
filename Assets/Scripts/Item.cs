@@ -51,7 +51,8 @@ public class Item: MonoBehaviour {
 		}
 		// If static coin
 		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "Coin") {
-			GainPoints.increaseScoreStatic(200);
+			GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
+			GainPoints.gainPoints.increaseScoreFixed(200);
 			GameController.gameController.coins++;
 			destroyItem();
 		}
@@ -61,7 +62,8 @@ public class Item: MonoBehaviour {
 				GameController.gameController.health++;
 			}
 			mario.StartCoroutine("transformCoroutine");
-			GainPoints.increaseScoreStatic(1000);
+			GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
+			GainPoints.gainPoints.increaseScoreFixed(1000);
 			destroyItem();
 		}
 		// If oneUp mushroom
@@ -74,6 +76,8 @@ public class Item: MonoBehaviour {
 		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "Star") {
 			GameController.gameController.star = true;
 			GameController.gameController.StartCoroutine("marioInvincible");
+			GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
+			GainPoints.gainPoints.increaseScoreFixed(1000);
 			destroyItem();
 		}
 	}

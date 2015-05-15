@@ -35,6 +35,10 @@ public class breakBrick: MonoBehaviour {
 		}
 	}
 
+	public void increaseScoreBricks() {
+		GainPoints.gainPoints.increaseScoreFixed(50);
+	}
+
 	public void disableCollider() {
 		boxCollider2D.enabled = !boxCollider2D.enabled;
 		anim.enabled = !anim.enabled;

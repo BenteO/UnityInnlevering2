@@ -10,6 +10,9 @@ public class GameController: MonoBehaviour {
 	// This
 	public static GameController gameController;
 
+	// Flag Animator
+	public Animator flag;
+
 	// Game Variables
 	public int health = 1;
 	public int lives = 3;
@@ -21,13 +24,18 @@ public class GameController: MonoBehaviour {
 	public int scoreMultiplier = 1;
 	bool timeIsUp = false;
 	public bool star = false;
+	public bool gameFinish = false;
+	public bool fireworks1 = false;
+	public bool fireworks2 = false;
+	public bool fireworks3 = false;
+	public bool raiseFlag = false;
+	bool finishing = false;
 
 	// Checks if another GameController exists and either keeps or destroys this
 	void Awake() {
 		// Sets resolution
 		Screen.fullScreen = false;
 		Screen.SetResolution(512, 448, false);
-
 		if(gameController == null) {
 			// Keeps the object in all scenes
 			DontDestroyOnLoad(this.gameObject);
@@ -38,8 +46,13 @@ public class GameController: MonoBehaviour {
 	}
 
 	void Update() {
-		//print("Multiplier: " + scoreMultiplier);
-		//print("Tims.timeScale: " + Time.timeScale);
+		// Finishing the game
+		if(gameFinish && !finishing) {
+			finishing = true;
+			StopCoroutine("Countdown");
+			StartCoroutine("FinishingGame");
+		}
+
 		// Pause
 		if(Input.GetButtonDown("Cancel")) {
 			if(Time.timeScale == 1) {
@@ -50,7 +63,7 @@ public class GameController: MonoBehaviour {
 		}
 
 		// Timer
-		if(timer <= 0 && !timeIsUp) {
+		if(timer <= 0 && !timeIsUp && !gameFinish) {
 			timeIsUp = true;
 			lives--;
 			StartCoroutine(TimeUp());
@@ -61,6 +74,11 @@ public class GameController: MonoBehaviour {
 			lives++;
 			coins -= 100;
 		}
+
+		// Music
+		// Overworld
+		// 100 - raskere Overworld
+		// Underground
 	}
 
 	public void pipeDown() {
@@ -95,9 +113,15 @@ public class GameController: MonoBehaviour {
 		score = 0;
 		coins = 0;
 		fromPipe = false;
-
-		// Reloads main menu
-		Application.LoadLevel("Main Scene");
+		scoreMultiplier = 1;
+		timeIsUp = false;
+		star = false;
+		gameFinish = false;
+		fireworks1 = false;
+		fireworks2 = false;
+		fireworks3 = false;
+		raiseFlag = false;
+		finishing = false;
 	}
 
 	public void startGame() {
@@ -127,31 +151,37 @@ public class GameController: MonoBehaviour {
 
 	IEnumerator WaitLoad(float wait, string sceneName) {
 		yield return new WaitForSeconds(wait);
-		print("Changing to " + sceneName);
 		Application.LoadLevel(sceneName);
 		if(sceneName.Equals("1-1") || sceneName.Equals("1-1Underground")) {
 			StartCoroutine("Countdown");
 		} else {
 			StopCoroutine("Countdown");
 		}
+		if(sceneName.Equals("Main Scene")) {
+			restart();
+		}
 	}
 
 	IEnumerator WaitLoadWaitLoad(float firstWait, string firstSceneName, string secondSceneName) {
 		yield return new WaitForSeconds(firstWait);
-		print("Changing to " + firstSceneName);
 		Application.LoadLevel(firstSceneName);
 		if(firstSceneName.Equals("1-1") || firstSceneName.Equals("1-1Underground")) {
 			StartCoroutine("Countdown");
 		} else {
 			StopCoroutine("Countdown");
 		}
+		if(firstSceneName.Equals("Main Scene")) {
+			restart();
+		}
 		yield return new WaitForSeconds(3f);
-		print("Changing to " + secondSceneName);
 		Application.LoadLevel(secondSceneName);
 		if(secondSceneName.Equals("1-1") || secondSceneName.Equals("1-1Underground")) {
 			StartCoroutine("Countdown");
 		} else {
 			StopCoroutine("Countdown");
+		}
+		if(secondSceneName.Equals("Main Scene")) {
+			restart();
 		}
 	}
 
@@ -160,27 +190,63 @@ public class GameController: MonoBehaviour {
 		star = false;
 	}
 
+	IEnumerator FinishingGame() {
+		int lastTimerDigit = timer % 10;
+		do {
+			score += 50;
+			timer--;
+			yield return new WaitForSeconds(0.01f);
+		} while(timer > 0);
+		if(timer <= 0) {
+			raiseFlag = true;
+			if(lastTimerDigit == 1) {
+				fireworks1 = true;
+				score += 500;
+			} else if(lastTimerDigit == 3) {
+				fireworks1 = true;
+				score += 500;
+				yield return new WaitForSeconds(1);
+				fireworks2 = true;
+				score += 500;
+			} else if(lastTimerDigit == 6) {
+				fireworks1 = true;
+				score += 500;
+				yield return new WaitForSeconds(1);
+				fireworks2 = true;
+				score += 500;
+				yield return new WaitForSeconds(1);
+				fireworks3 = true;
+				score += 500;
+			}
+		}
+		yield return new WaitForSeconds(1);
+		saveScore();
+		StartCoroutine(WaitLoad(1, "Main Scene"));
+	}
+
+
+
 	// Save
 	public void saveScore() {
 		BinaryFormatter bf = new BinaryFormatter();
 		FileStream file = File.Create(Application.persistentDataPath + "/scoreData.dat");
 
 		ScoreData data = new ScoreData();
-		data.score = score;
+		if(topScore < score) {
+			data.score = score;
+		}
 		bf.Serialize(file, data);
 		file.Close();
-		print("Saved");
 	}
 
 	// Load
 	public void loadScore() {
 		if(File.Exists(Application.persistentDataPath + "/scoreData.dat")) {
 			BinaryFormatter bf = new BinaryFormatter();
-			FileStream file = File.Open(Application.persistentDataPath + "/scoreData.dat",FileMode.Open);
+			FileStream file = File.Open(Application.persistentDataPath + "/scoreData.dat", FileMode.Open);
 			ScoreData data = (ScoreData) bf.Deserialize(file);
 			file.Close();
 			topScore = data.score;
-			print("Loaded");
 		} else {
 			topScore = 0;
 		}

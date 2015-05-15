@@ -18,16 +18,16 @@ public class InvicibleBlockScript: MonoBehaviour {
 	Vector3 detectorLength = new Vector3(0, -0.2f, 0);
 
 	void Start() {
-		anim = GetComponentInChildren<Animator>();
+		anim = GetComponent<Animator>();
 		mario = GameObject.Find("Mario Parent").GetComponentInChildren<Mario>();
 		controller = GetComponent<BoxController>();
 		thisPosition = new Vector3(transform.position.x, transform.position.y + 1, transform.position.z);
-		spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+		spriteRenderer = GetComponent<SpriteRenderer>();
 	}
 
 	void Update() {
 		controller.detector(detectorLength);
-		if(mario.interUp && !(mario.velocity.y < 0) && controller.collisions.interaction) {
+		if(Mario.interUp && !(mario.velocity.y < 0) && controller.collisions.interaction) {
 			activate = true;
 			spriteRenderer.color = new Vector4(255, 255, 255, 255);
 			controller.collisionMask = LayerMask.GetMask("Player", "Fireball", "Items");
@@ -42,7 +42,7 @@ public class InvicibleBlockScript: MonoBehaviour {
 			this.gameObject.layer = 0;
 			item = (GameObject) Instantiate(itemInBlock, thisPosition, Quaternion.identity);
 			used = false;
-			Destroy(GetComponentInChildren<UsedAnimationEvent>());
+			Destroy(GetComponent<UsedAnimationEvent>());
 		}
 	}
 }

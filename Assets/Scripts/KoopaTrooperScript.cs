@@ -59,16 +59,20 @@ public class KoopaTrooperScript: MonoBehaviour {
 
 		// Die
 		if(GameController.gameController.star) {
-			if((interaction.collisions.above || interaction.collisions.left) && (interaction.tagCollisions.above == "Player" || interaction.tagCollisions.left == "Player")) {
-				moveSpeed = 0;
-				anim.Play("DieFireRight");
-				GainPoints.increaseScoreStatic(200);
-				dead = true;
-			} else if((interaction.collisions.below || interaction.collisions.right) && (interaction.tagCollisions.below == "Player" || interaction.tagCollisions.right == "Player")) {
-				moveSpeed = 0;
-				anim.Play("DieFireLeft");
-				GainPoints.increaseScoreStatic(200);
-				dead = true;
+			if(!dead) {
+				if((interaction.collisions.above || interaction.collisions.left) && (interaction.tagCollisions.above == "Player" || interaction.tagCollisions.left == "Player")) {
+					moveSpeed = 0;
+					anim.Play("DieFireRight");
+					GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
+					GainPoints.gainPoints.increaseScoreMultiplier(200);
+					dead = true;
+				} else if((interaction.collisions.below || interaction.collisions.right) && (interaction.tagCollisions.below == "Player" || interaction.tagCollisions.right == "Player")) {
+					moveSpeed = 0;
+					anim.Play("DieFireLeft");
+					GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
+					GainPoints.gainPoints.increaseScoreMultiplier(200);
+					dead = true;
+				}
 			}
 		}
 
@@ -76,22 +80,26 @@ public class KoopaTrooperScript: MonoBehaviour {
 			moveSpeed = 0;
 			inShell = true;
 			anim.Play("ShellStatic");
-			GainPoints.increaseScoreStatic(100);
+			GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
+			GainPoints.gainPoints.increaseScoreMultiplier(100);
 		}
 		if(transform.position.y < -1f || (((transform.position.x - Camera.main.transform.position.x) > 15 || (transform.position.x - Camera.main.transform.position.x) < -15) && this.gameObject.layer == LayerMask.NameToLayer("KoopaTrooperShellMoving"))) {
 			Destroy(this.gameObject);
 		}
-
-		if(interaction.tagCollisions.above == "Fireball" || interaction.tagCollisions.left == "Fireball" && !dead) {
-			moveSpeed = 0;
-			anim.Play("DieFireRight");
-			GainPoints.increaseScoreStatic(200);
-			dead = true;
-		} else if(interaction.tagCollisions.below == "Fireball" || interaction.tagCollisions.right == "Fireball" && !dead) {
-			moveSpeed = 0;
-			anim.Play("DieFireLeft");
-			GainPoints.increaseScoreStatic(200);
-			dead = true;
+		if(!dead) {
+			if(interaction.tagCollisions.above == "Fireball" || interaction.tagCollisions.left == "Fireball") {
+				moveSpeed = 0;
+				anim.Play("DieFireRight");
+				GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
+				GainPoints.gainPoints.increaseScoreMultiplier(200);
+				dead = true;
+			} else if(interaction.tagCollisions.below == "Fireball" || interaction.tagCollisions.right == "Fireball") {
+				moveSpeed = 0;
+				anim.Play("DieFireLeft");
+				GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
+				GainPoints.gainPoints.increaseScoreMultiplier(200);
+				dead = true;
+			}
 		}
 	}
 
@@ -101,6 +109,7 @@ public class KoopaTrooperScript: MonoBehaviour {
 		thisChild.tag = "KoopaTrooperShellMoving";
 		gameObject.layer = LayerMask.NameToLayer("KoopaTrooperShellMoving");
 		thisChild.layer = LayerMask.NameToLayer("KoopaTrooperShellMoving");
-		GainPoints.increaseScoreFixed(400);
+		GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
+		GainPoints.gainPoints.increaseScoreFixed(400);
 	}
 }
