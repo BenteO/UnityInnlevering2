@@ -56,7 +56,7 @@ public class GameController: MonoBehaviour {
 		}
 
 		// Pause
-		if(Input.GetButtonDown("Pause")) {
+		if(Input.GetButtonDown("Cancel")) {
 			if(Time.timeScale == 1) {
 				Time.timeScale = 0;
 				AudioManager.audioManager.PauseMusic();
