@@ -106,6 +106,8 @@ public class Mario: MonoBehaviour {
 			velocity.y = 0;
 		}
 
+		Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+
 // Losing health
 		// Out of bounds
 		if(transform.position.y < -1 && !dead) {
@@ -152,7 +154,6 @@ public class Mario: MonoBehaviour {
 				StartCoroutine("multiplierUp");
 			}
 
-			Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 			// Jumping
 			if(Input.GetButtonDown("Jump") && controller.collisions.below) {
 				velocity.y = jumpVelocity;
@@ -173,12 +174,12 @@ public class Mario: MonoBehaviour {
 				jumpHoldCount = 0;
 				GameController.gameController.scoreMultiplier = 1;
 			}
-			if(controller.collisions.above || Input.GetButtonUp("Jump")) {
+			if(controller.collisions.above || Input.GetButtonUp("Jump") || velocity.y < 0) {
 				jumpHoldCount = jumpHoldCountMax;
 			}
 
 			// Changes moveSpeed
-			if(Input.GetButton("Run")) {
+			if(Input.GetButton("Run/Fireball")) {
 				if(controller.collisions.below) {
 					moveSpeed = moveSpeedSprint;
 					jumpVelocityFraction = 16.8f;
@@ -199,12 +200,13 @@ public class Mario: MonoBehaviour {
 			}
 
 // Fireball
-			if(Input.GetKeyDown(KeyCode.B) && fireballAmount < 2 && GameController.gameController.health >= 3) {
+			if(Input.GetButtonDown("Run/Fireball") && fireballAmount < 2 && GameController.gameController.health >= 3) {
 				StartCoroutine("fire");
 			}
 			fireballAmount = GameObject.FindGameObjectsWithTag("Fireball").Length;
+
 // Crouching
-			if(Input.GetKey(KeyCode.S) && GameController.gameController.health >= 2) {
+			if(input.y < 0 && GameController.gameController.health >= 2) {
 				boxCollider.size = new Vector2(boxCollider.size.x, 1.375f);
 				boxCollider.offset = new Vector2(0, 0.1875f);
 				crouching = true;
@@ -229,8 +231,9 @@ public class Mario: MonoBehaviour {
 		}
 		velocity.y += gravity * Time.deltaTime;
 		controller.move(velocity * Time.deltaTime);
+
 // Accessing pipes
-		if(transform.position.y == 6 && (transform.position.x > 57.2f && transform.position.x < 57.8f) && Input.GetKeyDown(KeyCode.S) && Application.loadedLevelName == "1-1" && !pipe) {
+		if(transform.position.y == 6 && (transform.position.x > 57.2f && transform.position.x < 57.8f) && input.y < 0 && Application.loadedLevelName == "1-1" && !pipe) {
 			canControl = false;
 			velocity.x = 0;
 			velocity.y = 0;
@@ -239,7 +242,7 @@ public class Mario: MonoBehaviour {
 			GameController.gameController.pipeDown();
 			AudioManager.audioManager.PlayMusic(audioClips[4]);
 		}
-		if(transform.position.x >= 12.1f && controller.collisions.below && (Input.GetAxisRaw("Horizontal") > 0) && Application.loadedLevelName == "1-1Underground" && !pipe) {
+		if(transform.position.x >= 12.1f && controller.collisions.below && input.x > 0 && Application.loadedLevelName == "1-1Underground" && !pipe) {
 			transform.position = new Vector3(12.1f, 2f, 0);
 			canControl = false;
 			velocity.x = 0;
@@ -335,7 +338,7 @@ public class Mario: MonoBehaviour {
 		anim.SetBool("Climbing", true);
 		yield return new WaitForSeconds(1.5f);
 		anim.SetBool("Climbing", false);
-		if(transform.position.y <= 3) {
+		if(transform.position.y <= 3.1f) {
 			anim.SetBool("GameFinish", true);
 		}
 	}

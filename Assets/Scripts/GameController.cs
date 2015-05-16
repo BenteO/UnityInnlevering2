@@ -56,7 +56,7 @@ public class GameController: MonoBehaviour {
 		}
 
 		// Pause
-		if(Input.GetButtonDown("Cancel")) {
+		if(Input.GetButtonDown("Pause")) {
 			if(Time.timeScale == 1) {
 				Time.timeScale = 0;
 				AudioManager.audioManager.PauseMusic();
@@ -200,6 +200,11 @@ public class GameController: MonoBehaviour {
 	IEnumerator WaitLoadWaitLoad(float firstWait, string firstSceneName, string secondSceneName) {
 		yield return new WaitForSeconds(firstWait);
 		Application.LoadLevel(firstSceneName);
+		if(firstSceneName.Equals("1-1") || firstSceneName.Equals("1-1Underground")) {
+			StartCoroutine("Countdown");
+		} else {
+			StopCoroutine("Countdown");
+		}
 		// Plays correct music
 		if(firstSceneName.Equals("Game Over Scene")) {
 			AudioManager.audioManager.PlayMusic(audioClips[5]);
@@ -212,16 +217,16 @@ public class GameController: MonoBehaviour {
 		} else if(firstSceneName.Equals("1-1Underground") && runningOutOfTime) {
 			AudioManager.audioManager.PlayMusic(audioClips[3]);
 		}
-		if(firstSceneName.Equals("1-1") || firstSceneName.Equals("1-1Underground")) {
-			StartCoroutine("Countdown");
-		} else {
-			StopCoroutine("Countdown");
-		}
 		if(firstSceneName.Equals("Main Scene")) {
 			restart();
 		}
 		yield return new WaitForSeconds(5f);
 		Application.LoadLevel(secondSceneName);
+		if(secondSceneName.Equals("1-1") || secondSceneName.Equals("1-1Underground")) {
+			StartCoroutine("Countdown");
+		} else {
+			StopCoroutine("Countdown");
+		}
 		// Plays correct music
 		if(secondSceneName.Equals("Game Over Scene")) {
 			AudioManager.audioManager.PlayMusic(audioClips[5]);
@@ -233,11 +238,6 @@ public class GameController: MonoBehaviour {
 			AudioManager.audioManager.PlayMusic(audioClips[1]);
 		} else if(secondSceneName.Equals("1-1Underground") && runningOutOfTime) {
 			AudioManager.audioManager.PlayMusic(audioClips[3]);
-		}
-		if(secondSceneName.Equals("1-1") || secondSceneName.Equals("1-1Underground")) {
-			StartCoroutine("Countdown");
-		} else {
-			StopCoroutine("Countdown");
 		}
 		if(secondSceneName.Equals("Main Scene")) {
 			restart();
