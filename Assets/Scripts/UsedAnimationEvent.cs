@@ -2,12 +2,13 @@
 using System.Collections;
 
 public class UsedAnimationEvent: MonoBehaviour {
-
+	
+	// Components
 	QuestionBlockScript QBScript;
 	BreakableBrickScript BBScript;
 	InvicibleBlockScript IBScript;
 
-	// Use this for initialization
+	// Gets script that exists
 	void Start() {
 		if(GetComponent<QuestionBlockScript>()) {
 			QBScript = GetComponent<QuestionBlockScript>();
@@ -20,6 +21,7 @@ public class UsedAnimationEvent: MonoBehaviour {
 		}
 	}
 
+	// Sets bool to script that exists
 	public void use() {
 		if(QBScript != null) {
 			QBScript.used = true;

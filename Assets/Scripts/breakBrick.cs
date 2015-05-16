@@ -3,22 +3,34 @@ using System.Collections;
 
 public class breakBrick: MonoBehaviour {
 
+	// Components
 	BoxCollider2D boxCollider2D;
 	public BoxCollider2D pieceBounds;
 	public Animator anim;
+
+	// Piece after break
 	public GameObject piece;
+
+	// Where to spawn pieces
 	PieceOrigins pieceOrigins;
+	// Spawn piece positioning
 	GameObject pieceTL;
 	GameObject pieceTR;
 	GameObject pieceBL;
 	GameObject pieceBR;
 
+	// Audio Clips
+	public AudioClip shatter;
+
+	// Gets the boxCollider2D
 	void Start() {
-		boxCollider2D = GetComponentInParent<BoxCollider2D>();
+		boxCollider2D = GetComponent<BoxCollider2D>();
 	}
 
 	void Update() {
+		// Updates the position of the broken pieces
 		UpdatePieceOrigins();
+		// Changes positions of the broken pieces
 		if(GameObject.FindGameObjectWithTag("piece")) {
 			if(pieceTL != null) {
 				pieceTL.transform.position = pieceOrigins.topLeft;
@@ -35,7 +47,9 @@ public class breakBrick: MonoBehaviour {
 		}
 	}
 
+	// Increase score; for animator
 	public void increaseScoreBricks() {
+		AudioManager.audioManager.PlayFX(shatter);
 		GainPoints.gainPoints.increaseScoreFixed(50);
 	}
 

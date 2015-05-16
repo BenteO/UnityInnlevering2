@@ -2,7 +2,8 @@
 using System.Collections;
 
 public class pieceDestroy: MonoBehaviour {
-	// Update is called once per frame
+
+	// Destroy brick pieces when it out of bounds
 	void Update() {
 		if(transform.position.y < -2) {
 			Destroy(this.gameObject);

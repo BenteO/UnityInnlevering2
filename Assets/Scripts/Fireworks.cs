@@ -3,11 +3,12 @@ using System.Collections;
 
 public class Fireworks: MonoBehaviour {
 
+	// Components
 	public Animator fireworks1;
 	public Animator fireworks2;
 	public Animator fireworks3;
 
-	// Update is called once per frame
+
 	void Update() {
 		if(fireworks1 != null) {
 			fireworks1.SetBool("Fireworks", GameController.gameController.fireworks1);

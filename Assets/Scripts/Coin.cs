@@ -8,7 +8,7 @@ public class Coin: MonoBehaviour {
 	void Start() {
 		item = GetComponentInParent<Item>();
 	}
-
+	// Method for animator
 	public void destroyThis() {
 		GameController.gameController.coins++;
 		item.destroyItem();

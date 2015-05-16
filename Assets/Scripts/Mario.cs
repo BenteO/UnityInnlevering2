@@ -24,7 +24,7 @@ public class Mario: MonoBehaviour {
 	private bool facingRight = true;
 	public bool turning = false;
 
-	// GameObject Components
+	// Components
 	public Animator anim;
 	Controller2D controller;
 	InteractionController interaction;
@@ -55,8 +55,11 @@ public class Mario: MonoBehaviour {
 	bool canControl = true;
 	bool recentlyDamaged = false;
 
+	// Audio Clips
+	public AudioClip[] audioClips;
 
 	void Start() {
+		// Get stuff
 		boxCollider = GetComponent<BoxCollider2D>();
 		controller = GetComponent<Controller2D>();
 		interaction = GetComponent<InteractionController>();
@@ -64,6 +67,7 @@ public class Mario: MonoBehaviour {
 		gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2); // s = v0 * t + 1/2 * a * t^2 -> a = 2s/t^2. Siden gravitasjonen fungerer mot positiv retning (opp) tar vi den negative verdien
 		jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex; // v = a * t. Vi tar absoluttverdien av gravity for å alltid få positiv jumpVelocity
 		anim.SetInteger("Health", GameController.gameController.health);
+		// Change position if he spawns from pipe
 		if(GameController.gameController.fromPipe && Application.loadedLevelName == "1-1") {
 			transform.position = new Vector3(163.5f, 4f, 0);
 		}
@@ -105,6 +109,7 @@ public class Mario: MonoBehaviour {
 // Losing health
 		// Out of bounds
 		if(transform.position.y < -1 && !dead) {
+			AudioManager.audioManager.PlayMusic(audioClips[3]);
 			canControl = false;
 			dead = true;
 			velocity.x = 0;
@@ -112,13 +117,21 @@ public class Mario: MonoBehaviour {
 			GameController.gameController.healthZero();
 		}
 		// Touches enemy
+		// If star is inactive
 		if(!GameController.gameController.star) {
 			if((interaction.tagCollisions.left == "KoopaTrooperShellMoving" || interaction.tagCollisions.right == "KoopaTrooperShellMoving" || interaction.tagCollisions.left == "Enemy" || interaction.tagCollisions.right == "Enemy" || interaction.tagCollisions.above == "Enemy") && !interaction.collisions.below && (interaction.tagCollisions.below != "Enemy")) {
+				// Is big and loses health, or small and dies
 				if(GameController.gameController.health > 1 && !recentlyDamaged) {
+					velocity.x = 0;
+					velocity.y = 0;
 					GameController.gameController.health = 1;
 					recentlyDamaged = true;
+					AudioManager.audioManager.PlayFX(audioClips[4]);
 					StartCoroutine("transformCoroutine");
 				} else if(GameController.gameController.health == 1 && !recentlyDamaged) {
+					velocity.x = 0;
+					velocity.y = 0;
+					AudioManager.audioManager.PlayMusic(audioClips[3]);
 					GameController.gameController.health = 0;
 					canControl = false;
 				}
@@ -127,6 +140,7 @@ public class Mario: MonoBehaviour {
 		anim.SetInteger("Health", GameController.gameController.health);
 
 // Input
+		// If he can be controled
 		if(canControl) {
 			// Bounce off enemies
 			if(interaction.tagCollisions.below == "Enemy") {
@@ -142,6 +156,11 @@ public class Mario: MonoBehaviour {
 			// Jumping
 			if(Input.GetButtonDown("Jump") && controller.collisions.below) {
 				velocity.y = jumpVelocity;
+				if(GameController.gameController.health > 1) {
+					AudioManager.audioManager.PlayFX(audioClips[1]);
+				} else {
+					AudioManager.audioManager.PlayFX(audioClips[0]);
+				}
 			}
 			// Jump higher
 			if(Input.GetButton("Jump") && (jumpHoldCount < jumpHoldCountMax)) {
@@ -159,7 +178,6 @@ public class Mario: MonoBehaviour {
 			}
 
 			// Changes moveSpeed
-
 			if(Input.GetButton("Run")) {
 				if(controller.collisions.below) {
 					moveSpeed = moveSpeedSprint;
@@ -212,28 +230,37 @@ public class Mario: MonoBehaviour {
 		velocity.y += gravity * Time.deltaTime;
 		controller.move(velocity * Time.deltaTime);
 // Accessing pipes
-		if(transform.position.y == 6 && (transform.position.x > 57.2f && transform.position.x < 57.8f) && Input.GetKeyDown(KeyCode.S) && Application.loadedLevelName == "1-1") {
+		if(transform.position.y == 6 && (transform.position.x > 57.2f && transform.position.x < 57.8f) && Input.GetKeyDown(KeyCode.S) && Application.loadedLevelName == "1-1" && !pipe) {
 			canControl = false;
+			velocity.x = 0;
+			velocity.y = 0;
 			pipe = true;
 			anim.SetBool("PipeDown", pipe);
 			GameController.gameController.pipeDown();
+			AudioManager.audioManager.PlayMusic(audioClips[4]);
 		}
-		if(transform.position.x >= 12.1f && (transform.position.y >= 2f && transform.position.y < 2.1f) && (Input.GetAxisRaw("Horizontal") > 0) && Application.loadedLevelName == "1-1Underground") {
+		if(transform.position.x >= 12.1f && controller.collisions.below && (Input.GetAxisRaw("Horizontal") > 0) && Application.loadedLevelName == "1-1Underground" && !pipe) {
 			transform.position = new Vector3(12.1f, 2f, 0);
 			canControl = false;
+			velocity.x = 0;
+			velocity.y = 0;
 			pipe = true;
 			anim.SetBool("PipeRight", pipe);
 			GameController.gameController.fromPipe = true;
 			GameController.gameController.pipeUp();
+			AudioManager.audioManager.PlayMusic(audioClips[4]);
 		}
 
 // Finishing the Level
 		if(transform.position.x >= 197.5f && !GameController.gameController.gameFinish) {
 			canControl = false;
 			GameController.gameController.gameFinish = true;
+			// Sets the x-position to get consistent animations
 			transform.position = new Vector3(197.5f, transform.position.y, transform.position.z);
 			StartCoroutine("poleFinish");
+			// Spawnspoint for pointtext
 			GainPoints.gainPoints.PointPrefabSpawn = new Vector3(199, 4, 0);
+			// Points based on y-position when he touches the pole
 			if(transform.position.y > 11) {
 				GainPoints.gainPoints.increaseScoreFixed(5000);
 			} else if(transform.position.y > 10) {
@@ -250,6 +277,7 @@ public class Mario: MonoBehaviour {
 		}
 	}
 
+	// Flip
 	void flip() {
 		facingRight = !facingRight;
 		Vector3 theScale = transform.localScale;
@@ -257,56 +285,72 @@ public class Mario: MonoBehaviour {
 		transform.localScale = theScale;
 	}
 
+	// Fire
 	IEnumerator fire() {
+		// Set bool for animator
 		shooting = true;
 		anim.SetBool("Shooting", shooting);
+		// pew
+		AudioManager.audioManager.PlayFX(audioClips[2]);
+		// Spawns fireball
 		attatchedFireball = (GameObject) Instantiate(fireball, fireballSpawner.transform.position, Quaternion.identity);
 		if(facingRight) {
-			attatchedFireball.GetComponent<Fireball>().moveVelocity = 15;
+			attatchedFireball.GetComponent<Fireball>().moveVelocity = 10;
 		} else if(!facingRight) {
 			attatchedFireball.GetComponent<Fireball>().moveVelocity = -10;
 		}
 		yield return new WaitForSeconds(0.5f);
+		// Sets bool for animator and allows firing again
 		shooting = false;
 		anim.SetBool("Shooting", shooting);
+		// To null so we can fire again without any troubles
 		attatchedFireball = null;
 	}
 
+	// When Mario transforms
 	IEnumerator transformCoroutine() {
+		// To avoid getting stuck
 		transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
 		transforming = true;
 		anim.SetBool("Transforming", transforming);
+		// Failsafe for the animator to start
 		if(Time.timeScale == 1) {
 			yield return new WaitForSeconds(0.01f);
 		}
+		// Stops the animation if it loops
 		transforming = false;
 		anim.SetBool("Transforming", transforming);
 		Time.timeScale = 1;
+		// If Mario lost health, make him invulnerable
 		if(recentlyDamaged) {
 			StartCoroutine("invulnerable");
 		}
 		yield return null;	
 	}
 
+	// When Mario touches the flagpole
 	IEnumerator poleFinish() {
 		velocity.x = 0;
 		velocity.y = 0;
 		anim.SetBool("Climbing", true);
-		yield return new WaitForSeconds(1);
+		yield return new WaitForSeconds(1.5f);
 		anim.SetBool("Climbing", false);
 		if(transform.position.y <= 3) {
 			anim.SetBool("GameFinish", true);
 		}
 	}
 
+	// Increases score multiplier
 	IEnumerator multiplierUp() {
+		// To avoid score too high
 		yield return new WaitForSeconds(0.1f);
 		GameController.gameController.scoreMultiplier++;
 	}
 
+	// When Mario loses health
 	IEnumerator invulnerable() {
-		print("invulnerable start");
 		float tempTime = 0;
+		// Blinks for 3 seconds
 		do {
 			this.gameObject.GetComponentInChildren<SpriteRenderer>().enabled = !this.gameObject.GetComponentInChildren<SpriteRenderer>().enabled;
 			yield return new WaitForFixedUpdate();
@@ -316,7 +360,6 @@ public class Mario: MonoBehaviour {
 			recentlyDamaged = false;
 			this.gameObject.GetComponentInChildren<SpriteRenderer>().enabled = true;
 		}
-		print("invulnerable end");
 		yield return null;
 	}
 }

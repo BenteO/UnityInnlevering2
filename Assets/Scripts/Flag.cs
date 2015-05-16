@@ -9,6 +9,7 @@ public class Flag: MonoBehaviour {
 		anim = GetComponent<Animator>();
 	}
 
+	// Lowers the flag
 	void Update() {
 		anim.SetBool("GameFinish", GameController.gameController.gameFinish);
 	}

@@ -4,15 +4,20 @@ using System.Collections;
 [RequireComponent(typeof(Controller2D), typeof(InteractionController))]
 public class Item: MonoBehaviour {
 
+	// Components
 	Controller2D controller;
 	InteractionController interaction;
 	Animator anim;
 	Mario mario;
 
+	// Variables
 	public float moveSpeed = 0f;
 	public float gravity = -3f;
 	Vector3 velocity;
 	bool facingRight = true;
+
+	// Audio Clips
+	public AudioClip audioClip;
 
 	// Use this for initialization
 	void Start() {
@@ -51,6 +56,7 @@ public class Item: MonoBehaviour {
 		}
 		// If static coin
 		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "Coin") {
+			AudioManager.audioManager.PlayFX(audioClip);
 			GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
 			GainPoints.gainPoints.increaseScoreFixed(200);
 			GameController.gameController.coins++;
@@ -60,6 +66,7 @@ public class Item: MonoBehaviour {
 		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "TransformingItem") {
 			if(GameController.gameController.health < 3) {
 				GameController.gameController.health++;
+				AudioManager.audioManager.PlayFX(audioClip);
 			}
 			mario.StartCoroutine("transformCoroutine");
 			GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
@@ -68,12 +75,14 @@ public class Item: MonoBehaviour {
 		}
 		// If oneUp mushroom
 		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "OneUp") {
+			AudioManager.audioManager.PlayFX(audioClip);
 			GameController.gameController.lives++;
 			destroyItem();
 		}
 
 		// If star
 		if((interaction.collisions.above || interaction.collisions.below || interaction.collisions.left || interaction.collisions.right) && this.gameObject.tag == "Star") {
+			AudioManager.audioManager.PlayMusic(audioClip);
 			GameController.gameController.star = true;
 			GameController.gameController.StartCoroutine("marioInvincible");
 			GainPoints.gainPoints.PointPrefabSpawn = this.transform.position;
@@ -82,6 +91,7 @@ public class Item: MonoBehaviour {
 		}
 	}
 
+	// Method to destroy
 	public void destroyItem() {
 		Destroy(this.gameObject);
 	}

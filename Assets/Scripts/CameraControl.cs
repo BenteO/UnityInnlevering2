@@ -3,6 +3,7 @@ using System.Collections;
 
 public class CameraControl: MonoBehaviour {
 
+	// Components
 	public Transform Mario;
 	public Vector2 Margin, Smoothing;
 	public BoxCollider2D BoundingBox;
@@ -16,24 +17,26 @@ public class CameraControl: MonoBehaviour {
 
 	public void Start() {
 		mainCamera = GetComponent<Camera>();
+		// Binds the camera
 		min = BoundingBox.bounds.min;
 		max = BoundingBox.bounds.max;
 		IsFollowing = true;
 	}
 
 	public void Update() {
-		var x = transform.position.x;
-		var y = transform.position.y;
+		float x = transform.position.x;
+		float y = transform.position.y;
 
 		if(IsFollowing) {
+			// Updates the minimum value to prevent going back
 			min = BoundingBox.bounds.min;
-			// Følger Mario
+			// Follows Mario
 			if(Mathf.Abs(x - Mario.position.x) > Margin.x)
 				x = Mathf.Lerp(x, Mario.position.x + 0.5f, Smoothing.x * Time.deltaTime);
 
-			var cameraHalfWidth = mainCamera.orthographicSize * ((float) Screen.width / Screen.height);
+			float cameraHalfWidth = mainCamera.orthographicSize * ((float) Screen.width / Screen.height);
 
-			// Binder kamera fast til banen
+			// Binds the camera to the level
 			x = Mathf.Clamp(x, min.x + cameraHalfWidth, max.x - cameraHalfWidth);
 			y = Mathf.Clamp(y, min.y + mainCamera.orthographicSize, max.y - mainCamera.orthographicSize);
 

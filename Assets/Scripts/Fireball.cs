@@ -3,20 +3,22 @@ using System.Collections;
 
 public class Fireball: MonoBehaviour {
 
-	float bounceHeight = 1;
+	// Components
+	Animator anim;
+	Controller2D controller;
+	InteractionController interaction;
+
+	// Variables
+	float bounceHeight = 1.2f;
 	float timeToApex = .2f;
 	float gravity = -10;
 	float bounceVelocity;
 	public float moveVelocity;
 	public bool hit = false;
 	bool bounce = false;
-
 	Vector3 velocity;
 	Vector3 interactionVector = new Vector3(0.01f, 0.01f, 0);
 
-	Animator anim;
-	Controller2D controller;
-	InteractionController interaction;
 
 	void Start() {
 		anim = GetComponentInChildren<Animator>();
@@ -25,11 +27,17 @@ public class Fireball: MonoBehaviour {
 		velocity.y = gravity;
 	}
 
-	// Update is called once per frame
 	void Update() {
+		// Out of bounds
+		if((transform.position.x - Camera.main.transform.position.x < -10f) || (transform.position.x - Camera.main.transform.position.x > 10f) || transform.position.y < -0.5) {
+			Destroy(this.gameObject);
+		}
+
+
 		// Interaction
 		interaction.detect(interactionVector);
 
+		// Tests interactions
 		if(controller.collisions.right || controller.collisions.left || interaction.collisions.left || interaction.collisions.right || interaction.collisions.above || interaction.collisions.below) {
 			moveVelocity = 0;
 			StartCoroutine("hitAndDestroy");
@@ -54,11 +62,6 @@ public class Fireball: MonoBehaviour {
 
 		velocity.x = moveVelocity;
 		controller.move(velocity * Time.deltaTime);
-
-
-		if(transform.position.x < -0.5 || transform.position.y < -0.5) {
-			Destroy(this.gameObject);
-		}
 	}
 
 	IEnumerator hitAndDestroy() {

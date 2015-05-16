@@ -7,7 +7,7 @@ public class UI_TopScore: MonoBehaviour {
 	public GameObject UIText;
 	Text thisTopScore;
 
-	// Use this for initialization
+	// Loads Topscore
 	void Start() {
 		thisTopScore = GetComponent<Text>();
 		GameController.gameController.loadScore();

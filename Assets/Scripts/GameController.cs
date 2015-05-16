@@ -10,9 +10,6 @@ public class GameController: MonoBehaviour {
 	// This
 	public static GameController gameController;
 
-	// Flag Animator
-	public Animator flag;
-
 	// Game Variables
 	public int health = 1;
 	public int lives = 3;
@@ -30,6 +27,11 @@ public class GameController: MonoBehaviour {
 	public bool fireworks3 = false;
 	public bool raiseFlag = false;
 	bool finishing = false;
+	bool runningOutOfTime = false;
+	bool playingFasterMusic = false;
+
+	// Audio Clips
+	public AudioClip[] audioClips = new AudioClip[11];
 
 	// Checks if another GameController exists and either keeps or destroys this
 	void Awake() {
@@ -57,8 +59,12 @@ public class GameController: MonoBehaviour {
 		if(Input.GetButtonDown("Cancel")) {
 			if(Time.timeScale == 1) {
 				Time.timeScale = 0;
+				AudioManager.audioManager.PauseMusic();
+				AudioManager.audioManager.PlayFX(audioClips[10]);
 			} else if(Time.timeScale == 0) {
 				Time.timeScale = 1;
+				AudioManager.audioManager.UnpauseMusic();
+				AudioManager.audioManager.PlayFX(audioClips[10]);
 			}
 		}
 
@@ -75,33 +81,46 @@ public class GameController: MonoBehaviour {
 			coins -= 100;
 		}
 
-		// Music
-		// Overworld
-		// 100 - raskere Overworld
-		// Underground
+		// Faster Music
+		runningOutOfTime = (timer < 100) ? true : false;
+		if(runningOutOfTime && !finishing) {
+			if(Application.loadedLevelName == "1-1" && !playingFasterMusic) {
+				playingFasterMusic = true;
+				AudioManager.audioManager.PlayMusic(audioClips[1]);
+			} else if(Application.loadedLevelName == "1-1Underground" && !playingFasterMusic) {
+				playingFasterMusic = true;
+				AudioManager.audioManager.PlayMusic(audioClips[3]);
+			}
+		}
 	}
 
+	// Going down to the Underworld
 	public void pipeDown() {
+		AudioManager.audioManager.PlayMusic(audioClips[9]);
 		StopAllCoroutines();
 		StartCoroutine(WaitLoad(3f, "1-1Underground"));
 	}
 
+	// Back up to the Overworld
 	public void pipeUp() {
+		AudioManager.audioManager.PlayMusic(audioClips[9]);
 		StopAllCoroutines();
 		StartCoroutine(WaitLoad(3f, "1-1"));
 	}
 
+	// IF health is Zero
 	public void healthZero() {
 		health = 1;
 		lives--;
-		timer = 400;
+		star = false;
 		if(lives <= 0) {
 			StopAllCoroutines();
-			StartCoroutine(WaitLoadWaitLoad(2f, "Game Over Scene", "Main Scene"));
+			StartCoroutine(WaitLoadWaitLoad(3f, "Game Over Scene", "Main Scene"));
 		} else {
 			StopAllCoroutines();
-			StartCoroutine(WaitLoadWaitLoad(2f, "Death Scene", "1-1"));
+			StartCoroutine(WaitLoadWaitLoad(3f, "Death Scene", "1-1"));
 		}
+		timer = 400;
 	}
 
 	// To restart the entire game
@@ -138,6 +157,7 @@ public class GameController: MonoBehaviour {
 		}
 	}
 
+	// Coroutine if time is up
 	IEnumerator TimeUp() {
 		health = 0;
 		yield return new WaitForSeconds(2f);
@@ -145,13 +165,27 @@ public class GameController: MonoBehaviour {
 		if(lives > 0) {
 			StartCoroutine(WaitLoadWaitLoad(3f, "Death Scene", "1-1"));
 		} else {
+			AudioManager.audioManager.PlayMusic(audioClips[5]);
 			StartCoroutine(WaitLoadWaitLoad(3f, "Game Over Scene", "Main Scene"));
 		}
 	}
 
+	// Coroutine to wait a set time, then loads scene
 	IEnumerator WaitLoad(float wait, string sceneName) {
 		yield return new WaitForSeconds(wait);
 		Application.LoadLevel(sceneName);
+		// Plays correct music
+		if(sceneName.Equals("Game Over Scene")) {
+			AudioManager.audioManager.PlayMusic(audioClips[5]);
+		} else if(sceneName.Equals("1-1") && timer >= 100) {
+			AudioManager.audioManager.PlayMusic(audioClips[0]);
+		} else if(sceneName.Equals("1-1Underground") && timer >= 100) {
+			AudioManager.audioManager.PlayMusic(audioClips[2]);
+		} else if(sceneName.Equals("1-1") && runningOutOfTime) {
+			AudioManager.audioManager.PlayMusic(audioClips[1]);
+		} else if(sceneName.Equals("1-1Underground") && runningOutOfTime) {
+			AudioManager.audioManager.PlayMusic(audioClips[3]);
+		}
 		if(sceneName.Equals("1-1") || sceneName.Equals("1-1Underground")) {
 			StartCoroutine("Countdown");
 		} else {
@@ -162,9 +196,22 @@ public class GameController: MonoBehaviour {
 		}
 	}
 
+	// Coroutine that same as over, but twice. Cant run WaitLoad in a row, because they'll run at the same time
 	IEnumerator WaitLoadWaitLoad(float firstWait, string firstSceneName, string secondSceneName) {
 		yield return new WaitForSeconds(firstWait);
 		Application.LoadLevel(firstSceneName);
+		// Plays correct music
+		if(firstSceneName.Equals("Game Over Scene")) {
+			AudioManager.audioManager.PlayMusic(audioClips[5]);
+		} else if(firstSceneName.Equals("1-1") && timer >= 100) {
+			AudioManager.audioManager.PlayMusic(audioClips[0]);
+		} else if(firstSceneName.Equals("1-1Underground") && timer >= 100) {
+			AudioManager.audioManager.PlayMusic(audioClips[2]);
+		} else if(firstSceneName.Equals("1-1") && runningOutOfTime) {
+			AudioManager.audioManager.PlayMusic(audioClips[1]);
+		} else if(firstSceneName.Equals("1-1Underground") && runningOutOfTime) {
+			AudioManager.audioManager.PlayMusic(audioClips[3]);
+		}
 		if(firstSceneName.Equals("1-1") || firstSceneName.Equals("1-1Underground")) {
 			StartCoroutine("Countdown");
 		} else {
@@ -173,8 +220,20 @@ public class GameController: MonoBehaviour {
 		if(firstSceneName.Equals("Main Scene")) {
 			restart();
 		}
-		yield return new WaitForSeconds(3f);
+		yield return new WaitForSeconds(5f);
 		Application.LoadLevel(secondSceneName);
+		// Plays correct music
+		if(secondSceneName.Equals("Game Over Scene")) {
+			AudioManager.audioManager.PlayMusic(audioClips[5]);
+		} else if(secondSceneName.Equals("1-1") && timer >= 100) {
+			AudioManager.audioManager.PlayMusic(audioClips[0]);
+		} else if(secondSceneName.Equals("1-1Underground") && timer >= 100) {
+			AudioManager.audioManager.PlayMusic(audioClips[2]);
+		} else if(secondSceneName.Equals("1-1") && runningOutOfTime) {
+			AudioManager.audioManager.PlayMusic(audioClips[1]);
+		} else if(secondSceneName.Equals("1-1Underground") && runningOutOfTime) {
+			AudioManager.audioManager.PlayMusic(audioClips[3]);
+		}
 		if(secondSceneName.Equals("1-1") || secondSceneName.Equals("1-1Underground")) {
 			StartCoroutine("Countdown");
 		} else {
@@ -184,42 +243,73 @@ public class GameController: MonoBehaviour {
 			restart();
 		}
 	}
-
+	// Coroutine when mario gets a star. Lasts 10 seconds
 	IEnumerator marioInvincible() {
+		// Plays star music
+		AudioManager.audioManager.PlayMusic(audioClips[4]);
 		yield return new WaitForSeconds(10);
 		star = false;
+		// Plays correct music
+		if(Application.loadedLevelName.Equals("1-1") && timer >= 100) {
+			AudioManager.audioManager.PlayMusic(audioClips[0]);
+		} else if(Application.loadedLevelName.Equals("1-1Underground") && timer >= 100) {
+			AudioManager.audioManager.PlayMusic(audioClips[2]);
+		} else if(Application.loadedLevelName.Equals("1-1") && runningOutOfTime) {
+			AudioManager.audioManager.PlayMusic(audioClips[1]);
+		} else if(Application.loadedLevelName.Equals("1-1Underground") && runningOutOfTime) {
+			AudioManager.audioManager.PlayMusic(audioClips[3]);
+		}
 	}
 
+	// Coroutine when we finish the game
 	IEnumerator FinishingGame() {
+		// Plays the flagpole music
+		AudioManager.audioManager.PlayMusic(audioClips[6]);
+		// Gets the last digit of the timer
 		int lastTimerDigit = timer % 10;
+		yield return new WaitForSeconds(1);
+		// Plays the victory song
+		AudioManager.audioManager.PlayMusic(audioClips[7]);
+		// Raises score. 50 points per timeunit left
 		do {
 			score += 50;
+			AudioManager.audioManager.PlayFX(audioClips[11]);
 			timer--;
 			yield return new WaitForSeconds(0.01f);
 		} while(timer > 0);
-		if(timer <= 0) {
+		if(timer <= 0 && !AudioManager.audioManager.MusicSource.isPlaying) {
+			// Raises the tiny flag on top of the castle
 			raiseFlag = true;
+			// Plays 1, 2 or 3 fireworks if the timer ends with 1, 3 or 6 respectively
+			// Each firework is worth 500 points
 			if(lastTimerDigit == 1) {
 				fireworks1 = true;
 				score += 500;
+				AudioManager.audioManager.PlayMusic(audioClips[8]);
 			} else if(lastTimerDigit == 3) {
 				fireworks1 = true;
 				score += 500;
+				AudioManager.audioManager.PlayMusic(audioClips[8]);
 				yield return new WaitForSeconds(1);
 				fireworks2 = true;
 				score += 500;
+				AudioManager.audioManager.PlayMusic(audioClips[8]);
 			} else if(lastTimerDigit == 6) {
 				fireworks1 = true;
 				score += 500;
+				AudioManager.audioManager.PlayMusic(audioClips[8]);
 				yield return new WaitForSeconds(1);
 				fireworks2 = true;
 				score += 500;
+				AudioManager.audioManager.PlayMusic(audioClips[8]);
 				yield return new WaitForSeconds(1);
 				fireworks3 = true;
 				score += 500;
+				AudioManager.audioManager.PlayMusic(audioClips[8]);
 			}
 		}
-		yield return new WaitForSeconds(1);
+		yield return new WaitForSeconds(5);
+		// Saves score and reloads the main scene
 		saveScore();
 		StartCoroutine(WaitLoad(1, "Main Scene"));
 	}
@@ -234,6 +324,8 @@ public class GameController: MonoBehaviour {
 		ScoreData data = new ScoreData();
 		if(topScore < score) {
 			data.score = score;
+		} else {
+			data.score = topScore;
 		}
 		bf.Serialize(file, data);
 		file.Close();
@@ -247,8 +339,6 @@ public class GameController: MonoBehaviour {
 			ScoreData data = (ScoreData) bf.Deserialize(file);
 			file.Close();
 			topScore = data.score;
-		} else {
-			topScore = 0;
 		}
 	}
 }

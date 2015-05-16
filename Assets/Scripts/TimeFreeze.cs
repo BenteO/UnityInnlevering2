@@ -8,7 +8,7 @@ public class TimeFreeze: MonoBehaviour {
 	void Start() {
 		anim = GetComponent<Animator>();
 	}
-
+	// Stops time and sets the Animator to UnscaledTime to keep animating regardless of timeScale
 	public void timeStop() {
 		if(Time.timeScale == 1) {
 			anim.updateMode = AnimatorUpdateMode.UnscaledTime;
@@ -16,11 +16,13 @@ public class TimeFreeze: MonoBehaviour {
 		}
 	}
 
+	// Starts time and sets Animator to Normal
 	public void timeStart() {
 		Time.timeScale = 1;
 		anim.updateMode = AnimatorUpdateMode.Normal;
 	}
 
+	// Method if Mario dead animation runs
 	public void Dead() {
 		GameController.gameController.healthZero();
 	}

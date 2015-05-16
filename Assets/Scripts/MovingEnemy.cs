@@ -3,12 +3,15 @@ using System.Collections;
 
 public class MovingEnemy: MonoBehaviour {
 
+	// Components
 	GoombaScript enemyScript;
 	KoopaTrooperScript koopaTrooperScript;
 
+	// Variables
 	public float startSpeed = 0;
 	bool speedSet = false;
 
+	// Gets Components
 	void Start() {
 		if(GetComponentInParent<GoombaScript>()) {
 			enemyScript = GetComponentInParent<GoombaScript>();
@@ -27,6 +30,7 @@ public class MovingEnemy: MonoBehaviour {
 		}
 	}
 
+	// Sets the speed. For OnWillRenderObject and for Animator
 	public void setSpeed() {
 		if(enemyScript != null) {
 			enemyScript.moveSpeed = startSpeed;
